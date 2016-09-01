@@ -39,13 +39,6 @@ int main(){
     }
 
   }
-
-  for(i=0;i<numItg;i++){
-    for(j=0;j<numfBin;j++){
-      cout<<fltdata.fltdata[i][j]<<" ";
-    }
-    cout<<endl;
-  }
   // Test dedispersion
   // use lofasm data file structure.
   double dmStart;
@@ -53,17 +46,25 @@ int main(){
 
   dmStart = 0;
   dmEnd = 10;
-  double dmStep = cal_dmStep_min(fltdata.freqAxis.back(),fltdata.freqAxis[1],
-                           fltdata.timeStep);
+  cout<<"time step "<<fltdata.timeStep;
 
-  cout<<fltdata.freqAxis.back()<<endl;
-  cout<<fltdata.freqAxis[1]<<endl;
-  cout<<"dm step "<<dmStep<<endl;
+  banddata = fltdata.get_freq_band(10,88);
+  cout<<banddata->numFreqBin<<endl;
+  cout<<banddata->numTimeBin<<endl;
+  if(outputfile2.is_open()){
+    for(i=0;i<numItg;i++){
+      for(j=0;j<numfBin;j++){
+        outputfile2<<banddata->fltdata[i][j]<<" ";
+      }
+      outputfile2<<endl;
+    }
+    outputfile2.close();
+  }
+  
+  double dmStep = cal_dmStep_min(banddata->freqAxis.back(),banddata->freqAxis.front(),
+                           banddata->timeStep);
   int dmNUM = (int)((dmEnd-dmStart)/dmStep);
   cout<<"dm number"<<dmNUM;
-  banddata = fltdata.get_freq_band(fltdata.freqAxis[1], fltdata.freqAxis.back());
-
-
   DMTime* DMT = dm_search_tree(*banddata,0,10,0);
   cout<<"write data\n";
   if (outputfile1.is_open())
