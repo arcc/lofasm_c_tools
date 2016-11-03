@@ -1,0 +1,19 @@
+# %ECSV 0.9
+# ---
+# datatype:
+# - {name: filename, datatype: string}
+# - {name: lofasm_station, datatype: string}
+# - {name: channel, datatype: string}
+# - {name: start_time_iso, datatype: string}
+# - {name: start_time_pass_J2000, unit: s, datatype: float64}
+# - {name: end_time_pass_J2000, unit: s, datatype: float64}
+# - {name: start_freq, unit: Hz, datatype: float64}
+# - {name: end_freq, unit: Hz, datatype: float64}
+# - {name: is_complex, datatype: bool}
+# - {name: number_of_time_bin, datatype: int64}
+# - {name: number_of_freq_bin, datatype: int64}
+# meta: !!omap
+# - {name: lofasm file info}
+filename lofasm_station channel start_time_iso start_time_pass_J2000 end_time_pass_J2000 start_freq end_freq is_complex number_of_time_bin number_of_freq_bin
+20160619_000326_AA.bbx.gz 3 AA 2016-06-19T000832.352000Z 519523712.352 519524012.328 0.0 200000000.0 False 3576 2048
+20160619_000828_AA.bbx.gz 3 AA 2016-06-19T001334.916100Z 519524014.916 519524314.976 0.0 200000000.0 False 3577 2048
