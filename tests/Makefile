@@ -5,11 +5,12 @@ CC=gcc
 CXX=g++
 RM=rm -f
 IDIR = ../include
-CPPFLAGS=-g -I$(IDIR)
-LDLIBS = ../lib/lib_lofasm_dedispersion.a
+IODIR = ../../lofasmio-1.0/
+CPPFLAGS=-g -I$(IDIR) -I$(IODIR)
+LDLIBS = ../lib/lib_lofasm_dedispersion.a ../../lofasmio-1.0/liblofasmio.a -lz
 
 all:$(EXECUTABLE)
 #:$(SOURCES)
-#	$(CXX) $(CPPFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $<
+  #$(CXX) $(CPPFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $<
 clean:
 	$(RM) $(OBJECTS) $(EXECUTABLE) *~

@@ -15,14 +15,14 @@ using namespace std;
 
 
 /* Smooth data function */
-vector<float> smooth_data(vector<float> &data, int smearSize){
+vector<double> smooth_data(vector<double> &data, int smearSize){
 	/*
 	data is a 1-D vector.
 	*/
 	int i,j;
 	size_t lenData;
 
-    vector<float> result(data.size(),0.0);
+    vector<double> result(data.size(),0.0);
 	result = data;
     /* smooth size smaller then 0, no need to smooth*/
     if(smearSize<=0){
@@ -35,7 +35,7 @@ vector<float> smooth_data(vector<float> &data, int smearSize){
 	    exit(1);
 	}
 
-    vector<float> smthblk(smearSize,0.0);  // smooth data block
+    vector<double> smthblk(smearSize,0.0);  // smooth data block
 
     /* Initialize the smooth block with the first smooth size
      data.*/
@@ -601,8 +601,8 @@ FilterBank simulate_flt_ez(double dm, double fstart, double fStep, double tstart
     srand (time(NULL));
     for(i=0;i<numfBin;i++){
     	for(j=0;j<numtBin;j++){
-    		result.fltdata[i][j] = ((static_cast <float> (rand())/   \
-    			                    static_cast <float>(RAND_MAX))   \
+    		result.fltdata[i][j] = ((static_cast <double> (rand())/   \
+    			                    static_cast <double>(RAND_MAX))   \
     			                    *noiseAmp*2-noiseAmp+noiseBias);
     	}
     }

@@ -70,7 +70,7 @@ void set_timeAxis(double tStart, double tStep);
     public:
         int numFreqBin;
         int numTimeBin;
-        vector< vector<float> > fltdata;
+        vector< vector<double> > fltdata;
         vector<double> freqAxis;
         double freqStep;
 

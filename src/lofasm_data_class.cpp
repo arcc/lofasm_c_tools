@@ -17,7 +17,7 @@ FilterBank::FilterBank(int numfbin,int numtbin){
     numFreqBin = numfbin;
     numTimeBin = numtbin;
     // Initial values are in 0.0
-    fltdata.resize(numFreqBin, vector<float> (numTimeBin,0.0));
+    fltdata.resize(numFreqBin, vector<double> (numTimeBin,0.0));
 }
 /* Create frequency axis */
 void FilterBank::set_freqAxis(double fStart, double fStep){

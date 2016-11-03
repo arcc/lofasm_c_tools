@@ -154,10 +154,22 @@ set_DM_time_power : Allocate the DM time power vector
 
 };
 
+class dedispersion_config
+/* This is a class for storing the dedispersion configuraiton information*/
+{
+    public:
+        string config_file;
+        double dm_start;
+        double dm_end;
+        double dm_step;
+        int dm_num;
+        int read_config(string filename);
+
+};
 
 /********************* Define lofasm dedispersion functions *******************/
 /* Smooth data */
-vector<float> smooth_data(vector<float> &data, int smearSize);
+vector<double> smooth_data(vector<double> &data, int smearSize);
 
 /* Simulate data*/
 FilterBank simulate_flt_ez(double dm, double fstart, double fStep, double tstart,\
