@@ -22,7 +22,7 @@ int main(){
     double da;
 
 
-    filename = "/Users/jingluo/Research_codes/LoFASM/lofasmio-1.0/testdata/20160619_000326_AA.bbx.gz";
+    filename = "../../lofasmio-1.0/testdata/20160619_000326_AA.bbx.gz";
     strncpy(fn, filename.c_str(), sizeof(fn));
     cout<<fn<<endl;
     fp = lfopen(fn, "rb");
