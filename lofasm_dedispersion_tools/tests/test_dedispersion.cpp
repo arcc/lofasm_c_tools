@@ -60,7 +60,7 @@ int main(){
     }
     outputfile2.close();
   }
-  
+
   double dmStep = cal_dmStep_min(banddata->freqAxis.back(),banddata->freqAxis.front(),
                            banddata->timeStep);
   int dmNUM = (int)((dmEnd-dmStart)/dmStep);
@@ -78,4 +78,5 @@ int main(){
       outputfile1.close();
   }
   else cout<< "Unable to open the file1";
+  return 0;
 }
