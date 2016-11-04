@@ -1,6 +1,6 @@
 /*Dedispersion cpp version header file */
 #ifndef LOFASM_DEDISPERSION_H_
-#define LOFASM_DEDIDPERSION_H_
+#define LOFASM_DEDISPERSION_H_
 
 #include<math.h>
 #include<string>
