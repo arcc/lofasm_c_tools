@@ -12,6 +12,7 @@ LDLIBS = ../lofasmio-1.0/liblofasmio.a -lz
 all:$(PROJECT)
 
 $(OBJECTS): $(SOURCES)
+	@mkdir -p lib
 	$(CXX) $(CPPFLAGS) -c -o $@ $(@:lib/%.o=src/%.cpp) $(LDLIBS)
 
 
