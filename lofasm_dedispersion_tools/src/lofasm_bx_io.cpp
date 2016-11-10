@@ -53,7 +53,7 @@ void read_bx2flt(FILE *fp, lfb_hdr& header, FilterBank& flt, int num_intgr, \
 }
 
 /*Some handy function for  read lofasm bx data. */
-double bx_get_freq_start(lfb_hdr& header){
+double bx_get_time_start(lfb_hdr& header){
   double start_time;
   start_time = header.time_offset_J2000 + header.dim1_start;
   return start_time;
@@ -71,7 +71,7 @@ double bx_get_freq_step(lfb_hdr& header){
   return freq_step;
 }
 
-double bx_get_time_start(lfb_hdr& header){
+double bx_get_freq_start(lfb_hdr& header){
   double start_freq;
   start_freq = header.frequency_offset_DC + header.dim2_start;
   return start_freq;
