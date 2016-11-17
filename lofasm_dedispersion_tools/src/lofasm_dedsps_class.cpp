@@ -4,10 +4,47 @@
 #include<string>
 #include<vector>
 #include<algorithm>
+#include <sstream>
 #include<fstream>
 #include"lofasm_dedispersion.h"
 using namespace std;
 
+/*Class method for dedsps_config*/
+void dedsps_config::read_config_file(char *filename){
+    ifstream file(filename);
+    for(string line; getline(file, line);){
+        parse_config_line(line);
+    }
+}
+
+void dedsps_config::parse_config_line(string line){
+    string arr[2];
+    int i = 0;
+    // Split line
+    stringstream ssin(line);
+    while (ssin.good() && i < 2){
+        ssin >> arr[i];
+        ++i;
+    }
+
+    if (arr[0][0] == '#')
+        return;
+    else if (!arr[0].compare("dm_start"))
+        dm_start = atof(arr[1].c_str());
+    else if (!arr[0].compare("dm_end"))
+        dm_end = atof(arr[1].c_str());
+    else if (!arr[0].compare("freq_start"))
+        freq_start = atof(arr[1].c_str());
+    else if (!arr[0].compare("freq_end"))
+        freq_end = atof(arr[1].c_str());
+    else if (!arr[0].compare("time_start"))
+        time_start = atof(arr[1].c_str());
+    else if (!arr[0].compare("time_end"))
+        time_end = atof(arr[1].c_str());
+    else
+        return;
+    return;
+}
 
 /*Class methods for DM_sltIndextIndex*/
 DM_sltIndex::DM_sltIndex(double dm){
@@ -142,6 +179,6 @@ void DMTime::set_normArray(){
 }
 
 void DMTime::set_DM_time_power(){
-    DM_time_power.resize(numDM, vector<float> (numTimeBin,0.0));
+    DM_time_power.resize(numDM, vector<double> (numTimeBin,0.0));
 }
 /* Finish define the class function for class DMTime*/

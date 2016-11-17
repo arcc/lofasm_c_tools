@@ -3,7 +3,7 @@ CFLAGS = -O3 -D_GNU_SOURCE \
 LDLIBS = -lz -lm
 HEADERS = markdown_parser.h charvector.h lofasmIO.h
 OBJS = lofasmIO.o markdown_peg.o markdown_parser.o charvector.o
-PROGS = md2man lfslice lfcat lftest bxresample lftype lfplot2d lfstats
+PROGS = md2man lfslice lfchop lfcat lftest bxresample lftype lfplot2d lfstats
 CC = gcc
 LIBS = liblofasmio.a(lofasmIO.o)
 

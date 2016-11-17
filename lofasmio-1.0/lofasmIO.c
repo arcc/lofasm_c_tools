@@ -100,7 +100,7 @@ zlib(3)
 
 <END> */
 FILE *lfopen( const char *filename, const char *mode )
-{ 
+{
 #ifndef NO_ZLIB
   gzFile zfp;
   int i, j;
@@ -174,14 +174,14 @@ A file pointer to the open file, or NULL, as for lfopen(3).
 To read compressed data from `stdin` and write compressed data to
 `stdout`:
 
-> `FILE *zstdin = lfdopen( 0, "rbZ" )`  
+> `FILE *zstdin = lfdopen( 0, "rbZ" )`
 > `FILE *zstdout = lfdopen( 1, "wbZ" )`
 
 To write compressed data to a system _command_ via a pipe:
 
-> `FILE *fp = popen( "`_command_`", "wb" );`  
-> `FILE *zfp = lfdopen( fileno( fp ), "wbZ" );`  
-> `:`  
+> `FILE *fp = popen( "`_command_`", "wb" );`
+> `FILE *zfp = lfdopen( fileno( fp ), "wbZ" );`
+> `:`
 > `pclose( zfp );`
 
 ## SEE ALSO
@@ -1507,13 +1507,11 @@ lfbxWrite( FILE *fp, lfb_hdr *header, void *data )
     err = ( fprintf( fp, "%%data_scale: %.16e\n", header->data_scale ) < 1 );
   if ( !err && header->data_type )
     err = ( fprintf( fp, "%%data_type: %s\n", header->data_type ) < 1 );
-
   /* Write dimensions and encoding. */
   for ( i = 0; !err && i < LFB_DMAX; i++ )
     err = ( header->dims[i] < 1 ||
 	    fprintf( fp, "%d ", header->dims[i] ) < 1 );
   err = err || ( fprintf( fp, "raw256\n" ) < 1 );
-
   /* Write data, if requested. */
   n = ( n%8 ? n/8 + 1 : n/8 );
   if ( !err && data )

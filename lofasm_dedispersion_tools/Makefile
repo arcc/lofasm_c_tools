@@ -8,7 +8,7 @@ CPPFLAGS=-g -I$(IDIR) -I$(IODIR)
 SOURCES= $(wildcard src/*.cpp)
 OBJECTS = $(addprefix lib/,$(notdir $(SOURCES:.cpp=.o)))
 OBJDIR = lib
-LDLIBS = ../lofasmio-1.0/liblofasmio.a -lz
+LDLIBS = ../lofasmio-1.0/lfstatsliblofasmio.a -lz
 all:$(PROJECT)
 
 $(OBJECTS): $(SOURCES)

@@ -38,12 +38,12 @@ int main(){
     cout<<fdata.numTimeBin<<endl;
     cout<<head.dim1_label<<endl;
     cout<<head.dim2_label<<endl;
-    // for (i=0; i<fdata.numTimeBin; i++){
-    //   for (j=0; j<fdata.numFreqBin; j++){
-    //     cout<< fdata.fltdata[j][i]<< " ";
-    //   }
-    //   cout<<endl;
-    // }
+    for (i=0; i<fdata.numTimeBin; i++){
+      for (j=0; j<fdata.numFreqBin; j++){
+        cout<< fdata.fltdata[j][i]<< " ";
+      }
+      cout<<endl;
+    }
 
     cout<<endl;
     return 0;

@@ -65,7 +65,7 @@ int main(){
                            banddata->timeStep);
   int dmNUM = (int)((dmEnd-dmStart)/dmStep);
   cout<<"dm number"<<dmNUM;
-  DMTime* DMT = dm_search_tree(*banddata,0,10,0);
+  DMTime* DMT = dm_search_tree(*banddata,0,10,0,0);
   cout<<"write data\n";
   if (outputfile1.is_open())
   {

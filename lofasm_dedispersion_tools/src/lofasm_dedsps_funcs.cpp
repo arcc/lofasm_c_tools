@@ -8,6 +8,8 @@
 #include <numeric>
 #include <time.h>
 #include <utility>
+#include <stdio.h>
+#include <unistd.h>
 #include "lofasm_dedispersion.h"
 #include "lofasm_data_class.h"
 #include "lofasm_utils.h"
@@ -280,7 +282,8 @@ int compute_DM_t_power_tree(FilterBank & data, DMTime & DMT, vector<DM_sltIndex>
     return 0;
 }
 
-int compute_DM_t_power_tree_add(FilterBank & data, DMTime & DMT, vector<DM_sltIndex> & DMsftArray){
+int compute_DM_t_power_tree_smrt(FilterBank & data, DMTime & DMT, vector<DM_sltIndex> & DMsftArray,\
+                                int terminate_idx){
     /* Tree method for LoFASM dedispersion. */
     int status;
     int i,j,k;
@@ -310,17 +313,11 @@ int compute_DM_t_power_tree_add(FilterBank & data, DMTime & DMT, vector<DM_sltIn
     // Calculate first DM for T_Power array
     /* loop over time bin last*/
 
-    /* Do first dm */
-    int maxTimebin;
-
-    maxTimebin = DMsftArray.back().sltIdx.front()[1];
-    cout<<"Max time bin"<<maxTimebin<<endl;
-
-    data.resize_time_bin(maxTimebin);
-
 		/* Do first dm */
-
-		for(i=0;i<numtBin;i++){
+    cout<<"Start tree method."<<endl;
+		//printf("%%%d dedispersion process finished.\r", 0.0/numDM);
+		//fflush(stdout);
+		for(i=0;i<terminate_idx;i++){
 				for(j=0;j<numfBin;j++){
 						sftI = DMsftArray[0].sftIdx[j];
 						sltIStart[j] = DMsftArray[0].sltIdx[j][0];
@@ -333,10 +330,9 @@ int compute_DM_t_power_tree_add(FilterBank & data, DMTime & DMT, vector<DM_sltIn
 				DMT.DM_time_power[0][i] = DMT.DM_time_power[0][i]/(float)DMsftArray[0].normNum;
 
 		}
-
+    //printf("%%%d dedispersion process finished.\r", 1.0/numDM);
+		//fflush(stdout);
 		/*Do other dm*/
-
-		cout<<"Start tree method."<<endl;
 		for(dmIdx=1;dmIdx<numDM;dmIdx++){
 				//cout<<" dm "<<dmIdx<<endl;
 				fcutIndex = DMsftArray[dmIdx].freqCutTree;
@@ -349,7 +345,7 @@ int compute_DM_t_power_tree_add(FilterBank & data, DMTime & DMT, vector<DM_sltIn
 						sltdiff[j][1] = sltIEnd[j]-sltIpEnd[j];
 				}
 
-				for(i=0;i<numtBin;i++){
+				for(i=0;i<terminate_idx;i++){
 
 						lastPower = DMT.DM_time_power[dmIdx-1][i]*DMsftArray[dmIdx-1].normNum;
 						curPower = lastPower;
@@ -369,74 +365,12 @@ int compute_DM_t_power_tree_add(FilterBank & data, DMTime & DMT, vector<DM_sltIn
 
 						DMT.DM_time_power[dmIdx][i] = curPower/(float)DMsftArray[dmIdx].normNum;
 				}
-
+				printf("  %%%.1f dedispersion processed.\r", (float)dmIdx/(float)numDM * 100);
+				fflush(stdout);
 		}
+		printf("\n");
+		fflush(stdout);
 		return 0;
-
-		/*
-    bandS = 90;
-		bandE = 110;
-
-
-		refSltI[0] =  DMsftArray[0].sltIdx[bandE][0];
-		refSltI[1] =  DMsftArray[0].sltIdx[bandE][1];
-    for(i=0;i<numtBin;i++){
-        for(j=bandS;j<bandE;j++){
-            sftI = DMsftArray[0].sftIdx[j];
-            sltIStart[j] = DMsftArray[0].sltIdx[j][0]-refSltI[0];
-            sltIEnd[j] = DMsftArray[0].sltIdx[j][1]-refSltI[1];
-            // Do summation for this time bin
-            for(k=0;k<sltIEnd[j]-sltIStart[j]+1;k++){
-                DMT.DM_time_power[0][i] += data.fltdata[j][i+k+sltIStart[j]];
-            }
-        }
-        DMT.DM_time_power[0][i] = DMT.DM_time_power[0][i]/(float)DMsftArray[0].normNum;
-
-    }
-    */
-    /*Do other dm*/
-		/*
-    int refSltIp[2];
-    cout<<"Start tree method."<<endl;
-    for(dmIdx=1;dmIdx<numDM;dmIdx++){
-        //cout<<" dm "<<dmIdx<<endl;
-        fcutIndex = DMsftArray[dmIdx].freqCutTree;
-				refSltI[0] =  DMsftArray[dmIdx].sltIdx[bandE][0];
-				refSltI[1] =  DMsftArray[dmIdx].sltIdx[bandE][1];
-				refSltIp[0] =  DMsftArray[dmIdx-1].sltIdx[bandE][0];
-				refSltIp[1] =  DMsftArray[dmIdx-1].sltIdx[bandE][1];
-        for(j=bandS;j<bandE;j++){
-            sltIStart[j] = DMsftArray[dmIdx].sltIdx[j][0]-refSltI[0];
-            sltIEnd[j] = DMsftArray[dmIdx].sltIdx[j][1]-refSltI[1];
-						cout<<sltIStart[j]<<" "<<sltIEnd[j]<<endl;
-            sltIpStart[j] = DMsftArray[dmIdx-1].sltIdx[j][0]-refSltIp[0] ;
-            sltIpEnd[j] = DMsftArray[dmIdx-1].sltIdx[j][1]-refSltIp[1] ;
-            sltdiff[j][0] = sltIStart[j]-sltIpStart[j];
-            sltdiff[j][1] = sltIEnd[j]-sltIpEnd[j];
-        }
-
-        for(i=0;i<numtBin;i++){
-
-            lastPower = DMT.DM_time_power[dmIdx-1][i]*DMsftArray[dmIdx-1].normNum;
-            curPower = lastPower;
-
-            for(j=bandS;j<=fcutIndex;j++){
-                //Substract the power we don't need
-                for(loop1=0;loop1<sltdiff[j][0];loop1++){
-                    curPower = curPower - data.fltdata[j][i+sltIpStart[j]+loop1];
-                }
-
-                //Add new powers
-                for(loop2=0;loop2<sltdiff[j][1];loop2++){
-                    curPower = curPower+ data.fltdata[j][i+sltIEnd[j]-loop2];
-                }
-
-            }
-
-            DMT.DM_time_power[dmIdx][i] = curPower/(float)DMsftArray[dmIdx].normNum;
-        }
-
-    }*/
 }
 
 
@@ -644,7 +578,8 @@ FilterBank simulate_flt_ez(double dm, double fstart, double fStep, double tstart
 }
 
 
-DMTime* dm_search_tree(FilterBank & indata,double dmStart,double dmEnd,double dmStep){
+DMTime* dm_search_tree(FilterBank & indata, double dmStart,double dmEnd, double dmStep,
+                       int dedsps_num_time_bin){
     /* Searching for DM using tree method
 		   Parameters
 			 -----------
@@ -656,17 +591,49 @@ DMTime* dm_search_tree(FilterBank & indata,double dmStart,double dmEnd,double dm
 			          Searching end DM
 			 dmStep : double
 			          DM searching step
+			 dedsps_num_time_bin : int
+			          Maximum dedispersion time bin, if 0, do all the time bins in the
+								indata.
 			 Return
 			 ----------
 			 DM_time Class pointer
 		*/
 		// GET dm array set up
     double dmStepMin;
+		double max_delay;
 		int dmNUM;
 		int i;
+		int max_delay_time_bin;
+		int add_data_flag = 0;
+    int add_time_bin = 0;
+    if (dedsps_num_time_bin <= 0)
+		    dedsps_num_time_bin = indata.numTimeBin;
 
+		if (dedsps_num_time_bin > indata.numTimeBin){
+			  cerr << "Not enough input data. ";
+				cerr << "Asked number of time bin is " << dedsps_num_time_bin <<". ";
+				cerr << "Input data number of time bin is "<< indata.numTimeBin;
+				exit(1);
+		}
+
+		cout<<"Setup the DM search class." << endl;
 		dmStepMin = cal_dmStep_min(indata.freqAxis.back(),indata.freqAxis.front(),
 														   indata.timeStep);
+
+		max_delay = compute_time_delay(indata.freqAxis.front(), indata.freqAxis.back(), \
+	                                 dmEnd);
+		max_delay_time_bin = (int)(max_delay/indata.timeStep) + 1;
+
+		// Check if we have enough data for dedispersion
+    if (indata.timeAxis.front() + max_delay < indata.timeAxis.back())
+		    add_data_flag = 1;
+		if (dedsps_num_time_bin + max_delay_time_bin > indata.numTimeBin)
+		    add_data_flag = 1;
+
+		if (add_data_flag == 1){
+				add_time_bin = max_delay_time_bin + dedsps_num_time_bin - indata.numTimeBin;
+				indata.resize_time_bin(indata.numTimeBin + add_time_bin);
+		}
 
 		if (dmStep<dmStepMin){
 			  dmStep = dmStepMin;
@@ -684,7 +651,7 @@ DMTime* dm_search_tree(FilterBank & indata,double dmStart,double dmEnd,double dm
 				//cout<<DMSarray[i].normNum<<endl;
 		}
 
-		cout<<"Calculate cut freq index"<<endl;
+		cout<<"Calculate cut frequency index"<<endl;
 		for(i=1;i<dmNUM;i++){
 				DMSarray[i].freqCutTree = cal_cut_freq_index(DMSarray[i],DMSarray[i-1]);
 				//cout<<DMSarray[i].freqCutTree<<endl;
@@ -692,16 +659,15 @@ DMTime* dm_search_tree(FilterBank & indata,double dmStart,double dmEnd,double dm
 
 
 		cout<<"initialize result data "<<endl;
-		int outdataFbin = indata.freqAxis.size();
-		int outdataTbin = indata.timeAxis.size()+100;
+		int outdataTbin = dedsps_num_time_bin;
 
 		cout<<"Create DM_T_power data."<<endl;
 
 		DMTime* dmt = new DMTime(dmNUM,outdataTbin,indata.timeStep);
-		dmt->set_dmAxis(0,dmStep);
-		dmt->set_timeAxis(0.0);
+		dmt->set_dmAxis(dmStart, dmStep);
+		dmt->set_timeAxis(indata.timeAxis.front());
 		dmt->set_DM_time_power();
 		dmt->set_normArray();
-		int status = compute_DM_t_power_tree_add(indata, *dmt, DMSarray);
+		int status = compute_DM_t_power_tree_smrt(indata, *dmt, DMSarray, dedsps_num_time_bin);
 		return dmt;
 }

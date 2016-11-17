@@ -9,6 +9,35 @@
 #include "lofasm_data_class.h"
 using namespace std;
 
+/*Define dedispersion configuraiton class*/
+class dedsps_config
+/* This is a class for storing dedispersion configuraiton information and reading
+information
+Public Members:
+----------
+double dm_start;
+double dm_end;
+double freq_start;
+double freq_end;
+double time_start;
+double time_end;
+Pubulic Method:
+----------
+void read_config_file(filename)
+*/
+{
+    public:
+        double dm_start;
+        double dm_end;
+        double freq_start;
+        double freq_end;
+        double time_start;
+        double time_end;
+        // Method
+        void read_config_file(char *filename);
+        void parse_config_line(string line);
+};
+
 /*Define DM with select index class*/
 class DM_sltIndex
 /*
@@ -143,8 +172,8 @@ set_DM_time_power : Allocate the DM time power vector
         double timeStep;
         int numTimeBin;
 
-        vector< vector<float> > DM_time_power;
-        vector<float> normArray;
+        vector< vector<double> > DM_time_power;
+        vector<double> normArray;
 
         DMTime (int numDMbin, int numTBin, double tStep);
         void set_timeAxis(double timeStart);
@@ -197,13 +226,13 @@ int compute_DM_t_power_tree_dommy(FilterBank & data, DMTime & DMT, \
 int compute_DM_t_power_tree(FilterBank & data, DMTime & DMT, \
                             vector<DM_sltIndex> & DMsftArray);
 
-int compute_DM_t_power_tree_add(FilterBank & data, DMTime & DMT, \
-                                vector<DM_sltIndex> & DMsftArray);
+int compute_DM_t_power_tree_smrt(FilterBank & data, DMTime & DMT, \
+                                 vector<DM_sltIndex> & DMsftArray, int terminate_idx);
 
 int cal_cut_freq_index(DM_sltIndex & DMsft0, DM_sltIndex & DMsft1);
 
 DMTime* dm_search_tree(FilterBank & indata, double dmStart, double dmEnd,\
-                        double dmStep);
+                        double dmStep, int dedsps_num_time_bin);
 
 
 #endif
