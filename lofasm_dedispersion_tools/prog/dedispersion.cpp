@@ -65,6 +65,16 @@ int main(int argc, char* argv[]){
   data_time_step = bx_get_time_step(head);
   data_time_start = bx_get_time_start(head);
   data_time_end = data_time_start + head.dim1_span;
+  //Check station
+  if (strcmp(head.station, config.station)){
+      cerr<<"File "<<datafile<<" does not have data from lofasm station "<<config.station<<endl;
+      return 1;
+  }
+  // Check channel
+  if (strcmp(head.channel, config.channel)){
+      cerr<<"File "<<datafile<<" does not have channel "<<config.channel;
+      return 1;
+  }
 
   // Check data if frequency band close to the target frequency.
   if (fabs(config.freq_start < data_freq_start) > data_freq_step){
@@ -98,7 +108,7 @@ int main(int argc, char* argv[]){
   read_bx2flt(data_fp, head, fdata, head.dims[0], 0);
 
   cout<<"Starting dedispersion..."<<endl;
-  DMTime* DMT = dm_search_tree(fdata, config.dm_start, config.dm_end, 0, 2);
+  DMTime* DMT = dm_search_tree(fdata, config.dm_start, config.dm_end, 0, dedsps_end_index);
   dmt_head.hdr_type = dmt_hdr_type;
   dmt_head.hdr_version = head.hdr_version;
   dmt_head.station = head.station;

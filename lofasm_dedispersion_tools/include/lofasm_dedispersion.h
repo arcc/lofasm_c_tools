@@ -21,6 +21,7 @@ double freq_start;
 double freq_end;
 double time_start;
 double time_end;
+char * channel;
 Pubulic Method:
 ----------
 void read_config_file(filename)
@@ -33,6 +34,8 @@ void read_config_file(filename)
         double freq_end;
         double time_start;
         double time_end;
+        char channel[32];
+        char station[32];
         // Method
         void read_config_file(char *filename);
         void parse_config_line(string line);
@@ -183,18 +186,6 @@ set_DM_time_power : Allocate the DM time power vector
 
 };
 
-class dedispersion_config
-/* This is a class for storing the dedispersion configuraiton information*/
-{
-    public:
-        string config_file;
-        double dm_start;
-        double dm_end;
-        double dm_step;
-        int dm_num;
-        int read_config(string filename);
-
-};
 
 /********************* Define lofasm dedispersion functions *******************/
 /* Smooth data */

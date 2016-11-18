@@ -41,6 +41,10 @@ void dedsps_config::parse_config_line(string line){
         time_start = atof(arr[1].c_str());
     else if (!arr[0].compare("time_end"))
         time_end = atof(arr[1].c_str());
+    else if (!arr[0].compare("channel"))
+        strncpy(channel, arr[1].c_str(), sizeof(channel));
+    else if (!arr[0].compare("station"))
+        strncpy(station, arr[1].c_str(), sizeof(station));
     else
         return;
     return;
