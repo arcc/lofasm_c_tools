@@ -1,8 +1,0 @@
-dm_start 1
-dm_end 5
-freq_start 10
-freq_end 88
-time_start 54000
-time_end 54001
-channel AA
-station 3
