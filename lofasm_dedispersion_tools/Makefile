@@ -3,12 +3,12 @@ CC=gcc
 CXX=g++
 RM=rm -f
 IDIR = include
-IODIR = ../lofasmio-1.0/
+IODIR = ../lofasmio/
 CPPFLAGS=-g -I$(IDIR) -I$(IODIR)
 SOURCES= $(wildcard src/*.cpp)
 OBJECTS = $(addprefix lib/,$(notdir $(SOURCES:.cpp=.o)))
 OBJDIR = lib
-LDLIBS = ../lofasmio-1.0/lfstatsliblofasmio.a -lz
+LDLIBS = ../lofasmio/liblofasmio.a -lz
 all:$(PROJECT)
 
 $(OBJECTS): $(SOURCES)
