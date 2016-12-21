@@ -19,7 +19,7 @@ int main(){
     ofstream outputfile("sim_flt1.dat");
     ofstream outputfile2("smoothflt1.dat");
     ofstream outputfile3("dedsps1.dat");
-    ofstream outputfile4("DMT.dat");
+    ofstream outputfile4("DMT_RFI.dat");
 	s=5;
     vector<float> out;
     vector<float> out2;
@@ -27,7 +27,8 @@ int main(){
 
 
     cout<<"simulate data"<<endl;
-    FilterBank testData = simulate_flt_ez(0, 10, 0.09, 0.0,0.08, 800, 1000,10, 0, 100, 3);
+    FilterBank testData = simulate_flt_RFI(2, 10, 0.09, 0.0,0.08, 800, 1000,100,\
+			                                     0, 0.2, 3, 0, 20, 3);
 
 
     if (outputfile.is_open())
