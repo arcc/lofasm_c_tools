@@ -8,7 +8,7 @@ int main(int argc, char* argv[]){
     }
     dedsps_config config;
 
-    config.read_config_file(argv[1]);
+    config.read_config_file(argv[1],0);
     cout<<config.time_start<<endl;
     return 0;
 }
