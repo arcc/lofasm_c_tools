@@ -11,6 +11,7 @@ using namespace std;
 
 /*Class method for dedsps_config*/
 int dedsps_config::read_config_file(char *filename, int error_out){
+    // If the file processed correctly, it will return 0, otherwise 1. 
     ifstream file(filename);
     if(!file.is_open()){
         if (error_out){
