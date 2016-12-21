@@ -447,7 +447,6 @@ int do_dedsps(FilterBank & indata, FilterBank & outdata, DM_sltIndex & DMsft){
     int i,j;
     int numfBin,numtBin;
 
-    cout<<"Hello"<<endl;
     if(indata.freqAxis.size()!=DMsft.sftIdx.size()){
     	cout<<"Input data Freqency bins not match shift index array bins"<<endl;
     	exit(1);
@@ -577,6 +576,110 @@ FilterBank simulate_flt_ez(double dm, double fstart, double fStep, double tstart
 
 }
 
+/* Simulate data */
+FilterBank simulate_flt_RFI(double dm, double fstart, double fStep, double tstart, \
+                     double tStep, int numfBin, int numtBin, float noiseAmp,   \
+                     float noiseBias,float SNR, double highFreqTOA, float RFIAmp,\
+									   double RFIfreq, double RFI_band_width)
+{
+
+	FilterBank result(numfBin,numtBin);
+	DM_sltIndex DMsft(dm);
+
+    float signalAmp;
+    int TOAindex;
+    int i,j;
+    int smear;
+    int sft;
+
+    double timeDelay;
+    double freqCal;            // A fake freqency for calculate the last channal smear out
+    int chan1smear;
+		double RFI_freq_start;
+		double RFI_freq_end;
+		int RFI_idx_start;
+		int RFI_idx_end;
+
+
+    signalAmp = noiseAmp*SNR;
+
+    /* Set filter bank data axises */
+    result.set_freqAxis(fstart,fStep);
+    result.set_timeAxis(tstart,tStep);
+
+    freqCal = result.freqAxis.front()-fStep;
+    /* Check signal arrival time */
+    if(highFreqTOA<=result.timeAxis.front()||
+    	highFreqTOA>=result.timeAxis.back()){
+    	cout<<"Highest freqency arrival time overflow the time axis of filter";
+        cout<<"bank data"<<endl;
+        exit(1);
+    }
+
+    /* Fill data with noise first */
+    /* initialize random seed: */
+    /* Add noise */
+    srand (time(NULL));
+    for(i=0;i<numfBin;i++){
+    	for(j=0;j<numtBin;j++){
+    		result.fltdata[i][j] = ((static_cast <double> (rand())/   \
+    			                    static_cast <double>(RAND_MAX))   \
+    			                    *noiseAmp*2-noiseAmp+noiseBias);
+    	}
+    }
+    /* Add signals */
+    TOAindex =  (int)highFreqTOA/(double)tStep;
+
+
+    /* Get smear*/
+    DMsft.cal_sftIdx(result.freqAxis, tStep,result.freqAxis.front());
+    DMsft.get_smearSize();
+
+    /* Get smear for the first channal */
+    int chan1sft;
+    chan1sft = (int)trunc(compute_time_delay(result.freqAxis.front(), freqCal, dm)/tStep);
+
+    /*get shift index*/
+    for(i=0;i<numfBin;i++){
+        timeDelay = 4.15e3*DMsft.DM*(1.0/(result.freqAxis[i]*result.freqAxis[i])
+                       -1.0/(result.freqAxis.back()*result.freqAxis.back()));
+
+        DMsft.sftIdx[i] = (int)trunc(timeDelay/tStep);
+    }
+
+    /* Add signal */
+    for(i=numfBin-1;i>=0;i--){
+    	smear = DMsft.smearSize[i]+1;
+    	sft = DMsft.sftIdx[i];
+    	result.fltdata[i][TOAindex+sft] = signalAmp;
+    	for(j=1;j<smear;j++){
+    		result.fltdata[i][TOAindex+sft+j] = signalAmp;
+    	}
+    }
+    /* Add first channal smear out */
+    for(i=0;i<chan1sft-1;i++){
+        result.fltdata[0][TOAindex+sft+i-1] = signalAmp;
+    }
+    if (RFIAmp > 0){
+			  RFI_freq_start = RFIfreq - RFI_band_width/2.0;
+				RFI_freq_end = RFIfreq + RFI_band_width/2.0;
+		    if (( RFI_freq_start <result.timeAxis.front()) \
+				     ||(RFI_freq_end >result.timeAxis.back())){
+			      cerr << "RFI frequency is not in data freqency range. "<<endl;
+						exit(1);
+		    }
+
+				RFI_idx_start = (int)((RFI_freq_start - result.timeAxis.front())/fStep);
+        RFI_idx_end = (int)((RFI_freq_end - result.timeAxis.front())/fStep);
+		    for(j=0;j<numtBin;j++)
+		    {
+					  for(i=RFI_idx_start; i < RFI_idx_end; i++ )
+			          result.fltdata[i][j] += RFIAmp;
+		    }
+  	}
+    return result;
+
+}
 
 DMTime* dm_search_tree(FilterBank & indata, double dmStart,double dmEnd, double dmStep,
                        int dedsps_num_time_bin){
@@ -629,7 +732,7 @@ DMTime* dm_search_tree(FilterBank & indata, double dmStart,double dmEnd, double 
 		    add_data_flag = 1;
 		if (dedsps_num_time_bin + max_delay_time_bin > indata.numTimeBin)
 		    add_data_flag = 1;
-
+    // If not enough, add zeros to the end.
 		if (add_data_flag == 1){
 				add_time_bin = max_delay_time_bin + dedsps_num_time_bin - indata.numTimeBin;
 				indata.resize_time_bin(indata.numTimeBin + add_time_bin);
