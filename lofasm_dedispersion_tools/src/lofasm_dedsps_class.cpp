@@ -10,11 +10,18 @@
 using namespace std;
 
 /*Class method for dedsps_config*/
-void dedsps_config::read_config_file(char *filename){
+int dedsps_config::read_config_file(char *filename, int error_out){
     ifstream file(filename);
+    if(!file.is_open()){
+        if (error_out){
+            cerr<<"Can not open config file "<<filename<<"."<<endl;
+        }
+        return 1;
+    }
     for(string line; getline(file, line);){
         parse_config_line(line);
     }
+    return 0;
 }
 
 void dedsps_config::parse_config_line(string line){
