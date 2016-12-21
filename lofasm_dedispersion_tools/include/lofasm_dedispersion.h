@@ -37,7 +37,7 @@ void read_config_file(filename)
         char channel[32];
         char station[32];
         // Method
-        void read_config_file(char *filename);
+        int read_config_file(char *filename, int error_out);
         void parse_config_line(string line);
 };
 
@@ -195,6 +195,11 @@ vector<double> smooth_data(vector<double> &data, int smearSize);
 FilterBank simulate_flt_ez(double dm, double fstart, double fStep, double tstart,\
                      double tStep, int numfBin, int numtBin,  float noiseAmp, \
                      float noiseBias, float SNR, double highFreqTOA);
+
+FilterBank simulate_flt_RFI(double dm, double fstart, double fStep, double tstart, \
+                    double tStep, int numfBin, int numtBin, float noiseAmp,   \
+                    float noiseBias,float SNR, double highFreqTOA, float RFIAmp,
+									   double RFIfreq, double RFI_band_width);
 
 int do_dedsps_curve(FilterBank & indata, FilterBank & outdata, \
                     DM_sltIndex & DMsft);
