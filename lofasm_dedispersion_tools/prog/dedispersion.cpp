@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
   double data_freq_end;
   double dedsps_end_time;
   double dedsps_time_span;
-  double dmStep;
+  double dmStep = 0;
   double *outbuff;
   int dedsps_end_index;
   int dmNUM;
@@ -101,6 +101,7 @@ int main(int argc, char* argv[]){
       config_mood = 1;
       dm_low = config.dm_start;
       dm_high = config.dm_end;
+      dmStep = config.dm_step;
       //Check station
       if (strcmp(head.station, config.station)){
           cerr<<"File "<<datafile<<" does not have data from lofasm station "<<config.station<<endl;
@@ -166,7 +167,7 @@ int main(int argc, char* argv[]){
   read_bx2flt(data_fp, head, fdata, head.dims[0], 0);
 
   cout<<"Starting dedispersion..."<<endl;
-  DMTime* DMT = dm_search_tree(fdata, dm_low, dm_high, 0, dedsps_end_index);
+  DMTime* DMT = dm_search_tree(fdata, dm_low, dm_high, dmStep, dedsps_end_index);
   dmt_head.hdr_type = dmt_hdr_type;
   dmt_head.hdr_version = head.hdr_version;
   dmt_head.station = head.station;

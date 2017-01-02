@@ -11,7 +11,7 @@ using namespace std;
 
 /*Class method for dedsps_config*/
 int dedsps_config::read_config_file(char *filename, int error_out){
-    // If the file processed correctly, it will return 0, otherwise 1. 
+    // If the file processed correctly, it will return 0, otherwise 1.
     ifstream file(filename);
     if(!file.is_open()){
         if (error_out){
@@ -49,6 +49,8 @@ void dedsps_config::parse_config_line(string line){
         time_start = atof(arr[1].c_str());
     else if (!arr[0].compare("time_end"))
         time_end = atof(arr[1].c_str());
+    else if (!arr[0].compare("dm_step"))
+        dm_step = atof(arr[1].c_str());
     else if (!arr[0].compare("channel"))
         strncpy(channel, arr[1].c_str(), sizeof(channel));
     else if (!arr[0].compare("station"))

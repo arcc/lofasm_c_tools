@@ -30,6 +30,7 @@ void read_config_file(filename)
     public:
         double dm_start;
         double dm_end;
+        double dm_step;
         double freq_start;
         double freq_end;
         double time_start;
