@@ -65,11 +65,11 @@ double compute_time_delay(double freq, double freqRef, double dm){
 double cal_dmStep_min(double freqMax, double freqMin, double timeStep){
     /* Calculate the smallest dm step*/
     double dmstep;
-    cout<<timeStep<<endl;
-    cout<<freqMax<<endl;
-    cout<<freqMin<<endl;
+    cout<<"Time resolution for the input filter bank data is: "<<timeStep << \
+		" (second)"<<endl;
     dmstep = timeStep/(-4.15e3*(1.0/(freqMax*freqMax)
                        -1.0/(freqMin*freqMin)));
+		cout<<"Dispersion measure search step is: " << dmstep << " (pc/cm3)" <<endl;
     return dmstep;
 }
 
@@ -751,15 +751,12 @@ DMTime* dm_search_tree(FilterBank & indata, double dmStart,double dmEnd, double 
 				DMSarray[i].get_smearSize();
 				DMSarray[i].cal_sltIdx(indata.freqAxis,indata.timeStep,indata.freqAxis.back());
 				DMSarray[i].cal_normNum();
-				//cout<<DMSarray[i].normNum<<endl;
 		}
 
 		cout<<"Calculate cut frequency index"<<endl;
 		for(i=1;i<dmNUM;i++){
 				DMSarray[i].freqCutTree = cal_cut_freq_index(DMSarray[i],DMSarray[i-1]);
-				//cout<<DMSarray[i].freqCutTree<<endl;
 		}
-
 
 		cout<<"initialize result data "<<endl;
 		int outdataTbin = dedsps_num_time_bin;

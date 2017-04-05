@@ -108,7 +108,7 @@ void get_smearSize() :
         double timeDelay;
         double tStep;
         int lastSft1Idx;
-        int normNum;
+        int normNum = 0;
         int freqCutTree; // Cutting frequency for tree method.
         vector<int> sftIdx;
         vector<int> smearSize; // Change to smearSize
