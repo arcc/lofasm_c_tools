@@ -147,13 +147,15 @@ void DM_sltIndex::cal_sltIdx(vector<double> freqAxis, double timeStep, double re
 }
 
 
-void DM_sltIndex::cal_normNum(){
+void DM_sltIndex::cal_normNum(FilterBank & data_mask){
 /* The sltIdx, select index, should be calculated first*/
     int slcNumPfreq;
-    int i;
+    int i, j;
     for(i=0;i<sltIdx.size();i++){
         slcNumPfreq = sltIdx[i][1]-sltIdx[i][0]+1;
-        normNum += slcNumPfreq;
+        for(j=0; j<slcNumPfreq; j++){
+            normNum += data_mask.fltdata[i][sltIdx[i][0]+j];
+      }
     }
 }
 /* Finish define the DM_sftIndex class methods*/
@@ -189,7 +191,7 @@ void DMTime::set_dmAxis(double dmStart,double DMStep){
 }
 
 void DMTime::set_normArray(){
-    normArray.resize(numTimeBin,0.000001);// initial as 0.000001 a small number
+    normArray.resize(numDM, vector<double> (numTimeBin,0.000001));// initial as 0.000001 a small number
 }
 
 void DMTime::set_DM_time_power(){

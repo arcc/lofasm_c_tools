@@ -77,45 +77,6 @@ int check_data_size(FilterBank & data, DMTime & DMT, vector<DM_sltIndex> & DMsft
     return 0;
 }
 
-
-/* Create DM_T Plot*/
-int compute_DM_t_power_dommy(FilterBank & data, DMTime & DMT, vector<DM_sltIndex> & DMsftArray){
-    int status;
-    int i,j,k;
-    int numfBin, numtBin, numDM;
-    int sftI;
-    numfBin = data.numFreqBin;
-    numtBin = data.numTimeBin;
-    numDM = DMT.numDM;
-
-    /**
-    for(i=0;i<numDM;i++){
-        cout<<DMsftArray[i].DM<<endl;
-        for(j=0;j<numfBin;j++){
-            cout<<DMsftArray[i].sftIdx[j]<<" ";
-        }
-        cout<<endl;
-    }
-    */
-
-    /* Dommy way of do it */
-    for(i=0;i<numDM;i++){
-        for(j=0;j<numfBin;j++){
-            sftI = DMsftArray[i].sftIdx[j];
-            for(k=0;k<numtBin;k++){
-                DMT.DM_time_power[i][k+sftI] += data.fltdata[j][k];
-                DMT.normArray[k+sftI]+= 1.0;
-            }
-        }
-        /*Normalize */
-        for(k=0;k<DMT.numTimeBin;k++){
-            DMT.DM_time_power[i][k] = DMT.DM_time_power[i][k]/DMT.normArray[k];
-        }
-        fill(DMT.normArray.begin(), DMT.normArray.end(), 0.000001);
-    }
-    return 0;
-}
-
 int compute_DM_t_power_tree_dommy(FilterBank & data, DMTime & DMT, vector<DM_sltIndex> & DMsftArray){
     int status;
     int i,j,k;
@@ -165,34 +126,6 @@ int compute_DM_t_power_tree_dommy(FilterBank & data, DMTime & DMT, vector<DM_slt
         }
     }
 
-    // /*Do other dm*/
-
-    // cout<<"Start tree method."<<endl;
-    // for(dmIdx=1;dmIdx<numDM;dmIdx++){
-    //     for(i=0;i<numtBin;i++){
-    //         lastPower = DMT.DM_time_power[dmIdx-1][i]*DMsftArray[dmIdx-1].normNum;
-    //         curPower = lastPower;
-    //         for(j=0;j<numfBin;j++){
-    //             sftI = DMsftArray[dmIdx].sftIdx[j];
-    //             sltI[0] = DMsftArray[dmIdx].sltIdx[j][0];
-    //             sltI[1] = DMsftArray[dmIdx].sltIdx[j][1];
-    //             sltIp[0] = DMsftArray[dmIdx-1].sltIdx[j][0];
-    //             sltIp[1] = DMsftArray[dmIdx-1].sltIdx[j][1];
-    //             numSub = sltI[0]-sltIp[0];
-    //             numAdd = sltI[1]-sltIp[1];
-
-    //             /*Substract the power we don't need*/
-    //             for(loop1=0;loop1<numSub;loop1++){
-    //                 curPower = curPower - data.fltdata[j][i+sltIp[0]+loop1];
-    //             }
-    //             /*Add new powers */
-    //             for(loop2=0;loop2<numSub;loop2++){
-    //                 curPower = curPower+ data.fltdata[j][i+sltIp[1]-loop2];
-    //             }
-    //         }
-    //         DMT.DM_time_power[dmIdx][i] = curPower/(float)DMsftArray[dmIdx].normNum;
-    //     }
-    // }
     return 0;
 }
 
@@ -246,7 +179,6 @@ int compute_DM_t_power_tree(FilterBank & data, DMTime & DMT, vector<DM_sltIndex>
 
     cout<<"Start tree method."<<endl;
     for(dmIdx=1;dmIdx<numDM;dmIdx++){
-        //cout<<" dm "<<dmIdx<<endl;
         fcutIndex = DMsftArray[dmIdx].freqCutTree;
         for(j=0;j<numfBin;j++){
             sltIStart[j] = DMsftArray[dmIdx].sltIdx[j][0];
@@ -282,8 +214,9 @@ int compute_DM_t_power_tree(FilterBank & data, DMTime & DMT, vector<DM_sltIndex>
     return 0;
 }
 
-int compute_DM_t_power_tree_smrt(FilterBank & data, DMTime & DMT, vector<DM_sltIndex> & DMsftArray,\
-                                int terminate_idx){
+int compute_DM_t_power_tree_smrt(FilterBank & data, FilterBank & data_mask, \
+	                               DMTime & DMT, vector<DM_sltIndex> & DMsftArray,\
+                                 int terminate_idx){
     /* Tree method for LoFASM dedispersion. */
     int status;
     int i,j,k;
@@ -294,8 +227,10 @@ int compute_DM_t_power_tree_smrt(FilterBank & data, DMTime & DMT, vector<DM_sltI
     int numSub;
     int numAdd;
     int fcutIndex;
-    float lastPower;
-    float curPower;
+    double lastPower;
+    double curPower;
+		double lastNorm;
+		double curNorm;
 
     numfBin = data.numFreqBin;
     numtBin = data.numTimeBin;
@@ -324,17 +259,18 @@ int compute_DM_t_power_tree_smrt(FilterBank & data, DMTime & DMT, vector<DM_sltI
 						sltIEnd[j] = DMsftArray[0].sltIdx[j][1];
 						/* Do summation for this time bin */
 						for(k=0;k<sltIEnd[j]-sltIStart[j]+1;k++){
-								DMT.DM_time_power[0][i] += data.fltdata[j][i+k+sltIStart[j]];
+								DMT.DM_time_power[0][i] += data.fltdata[j][i+k+sltIStart[j]] * \
+								                           data_mask.fltdata[j][i+k+sltIStart[j]];
+								DMT.normArray[0][i] += data_mask.fltdata[j][i+k+sltIStart[j]];
 						}
 				}
-				DMT.DM_time_power[0][i] = DMT.DM_time_power[0][i]/(float)DMsftArray[0].normNum;
+				//DMT.DM_time_power[0][i] = DMT.DM_time_power[0][i]/(float)DMsftArray[0].normNum;
+				DMT.DM_time_power[0][i] = DMT.DM_time_power[0][i]/DMT.normArray[0][i];
 
 		}
-    //printf("%%%d dedispersion process finished.\r", 1.0/numDM);
-		//fflush(stdout);
+
 		/*Do other dm*/
 		for(dmIdx=1;dmIdx<numDM;dmIdx++){
-				//cout<<" dm "<<dmIdx<<endl;
 				fcutIndex = DMsftArray[dmIdx].freqCutTree;
 				for(j=0;j<numfBin;j++){
 						sltIStart[j] = DMsftArray[dmIdx].sltIdx[j][0];
@@ -347,23 +283,31 @@ int compute_DM_t_power_tree_smrt(FilterBank & data, DMTime & DMT, vector<DM_sltI
 
 				for(i=0;i<terminate_idx;i++){
 
-						lastPower = DMT.DM_time_power[dmIdx-1][i]*DMsftArray[dmIdx-1].normNum;
+						//lastPower = DMT.DM_time_power[dmIdx-1][i]*DMsftArray[dmIdx-1].normNum;
+						lastPower = DMT.DM_time_power[dmIdx-1][i] * DMT.normArray[dmIdx-1][i];
+						lastNorm = DMT.normArray[dmIdx-1][i];
 						curPower = lastPower;
+						curNorm = lastNorm;
 
 						for(j=0;j<=fcutIndex;j++){
 								/*Substract the power we don't need*/
 								for(loop1=0;loop1<sltdiff[j][0];loop1++){
-										curPower = curPower - data.fltdata[j][i+sltIpStart[j]+loop1];
+										curPower = curPower - data.fltdata[j][i+sltIpStart[j]+loop1] * \
+										           data_mask.fltdata[j][i+sltIpStart[j]+loop1];
+										curNorm = curNorm - data_mask.fltdata[j][i+sltIpStart[j]+loop1];
 								}
 
 								/*Add new powers */
 								for(loop2=0;loop2<sltdiff[j][1];loop2++){
-										curPower = curPower+ data.fltdata[j][i+sltIEnd[j]-loop2];
+										curPower = curPower+ data.fltdata[j][i+sltIEnd[j]-loop2] * \
+										           data_mask.fltdata[j][i+sltIEnd[j]-loop2];
+										curNorm = curNorm + data_mask.fltdata[j][i+sltIEnd[j]-loop2];
 								}
 
 						}
 
-						DMT.DM_time_power[dmIdx][i] = curPower/(float)DMsftArray[dmIdx].normNum;
+						DMT.DM_time_power[dmIdx][i] = curPower/curNorm;
+						DMT.normArray[dmIdx][i] = curNorm;
 				}
 				printf("  %%%.1f dedispersion processed.\r", (float)dmIdx/(float)numDM * 100);
 				fflush(stdout);
@@ -379,65 +323,6 @@ int do_dedsps_check(FilterBank & indata, FilterBank & outdata, DM_sltIndex & DMs
     return 0;
 }
 
-int do_dedsps_curve(FilterBank & indata, FilterBank & outdata, DM_sltIndex & DMsft){
-    /* The shift index should be calculated
-       Input data freqency size should be the same with sftIndex size*/
-    int status;
-    int i,j,k;
-    int numfBin,numtBin;
-    int targetIndex;
-    int sftI;
-    int sltI;
-    vector<int> selectIdx;
-    vector<int> maxSlt;
-		vector<int>::iterator it;
-    double tStep;
-
-    numfBin = indata.freqAxis.size();
-
-    numtBin = indata.timeAxis.size();
-    tStep = indata.timeStep;
-
-    DMsft.cal_sltIdx(indata.freqAxis,indata.timeStep,indata.freqAxis.back());
-		cout<<"Hello3"<<endl;
-    maxSlt = DMsft.sltIdx.front();
-		cout<<maxSlt[1]<<endl;
-
-		for (i=0;i<indata.fltdata.size();i++){
-			  indata.fltdata[i].resize(numtBin+maxSlt[1],0.0);
-				//it = indata.fltdata[i].begin();
-				//indata.fltdata[i].insert(it,maxSlt[1],0.0);
-		}
-    for(j=0;j<numtBin;j++){
-			  for(i=0;i<numfBin;i++){
-					  //cout<<DMsft.sltIdx[i][0]<<" "<<DMsft.sltIdx[i][1]<<" ";
-						//cout<<endl;
-					  for(k=DMsft.sltIdx[i][0];k<DMsft.sltIdx[i][1];k++){
-							  //cout<<k<<" "<<endl;
-				        outdata.fltdata[i][j] += indata.fltdata[i][j+k];
-            }
-				}
-				//cout<<endl;
-		}
-
-		/*
-		for(j=0;j<3;j++){
-        targetIndex = j+maxSft;
-        for(i=0;i<numfBin;i++){
-            sftI = DMsft.sftIdx[i];
-            //cout<<"freq bin "<<i<<" sSize "<<DMsft.smearSize[i]<<" shft "<<sftI;
-            sltI = selectIdx[i];
-            for(k=0;k<=DMsft.smearSize[i];k++){
-                //cout<<" index "<<j<<" "<<targetIndex-sftI+k<<" ";
-                cout<<sltI<<" "<<indata.fltdata[i][sltI+k+j]<<" ";
-                outdata.fltdata[i][targetIndex] += indata.fltdata[i][sltI+k+j];
-            }
-            cout<<endl;
-        }
-    }
-		*/
-
-}
 
 /* Do dedispersion */
 int do_dedsps(FilterBank & indata, FilterBank & outdata, DM_sltIndex & DMsft){
@@ -681,13 +566,16 @@ FilterBank simulate_flt_RFI(double dm, double fstart, double fStep, double tstar
 
 }
 
-DMTime* dm_search_tree(FilterBank & indata, double dmStart,double dmEnd, double dmStep,
-                       int dedsps_num_time_bin){
+DMTime* dm_search_tree(FilterBank & indata, FilterBank & data_mask, \
+	                     double dmStart,double dmEnd, double dmStep,  \
+											 int dedsps_num_time_bin){
     /* Searching for DM using tree method
 		   Parameters
 			 -----------
 			 indate : FilterBank data class
 			          Input data
+			 data_mask : FilterBank data class
+			          The data mask for selecting the useful data.
 			 dmStart : double
 			          Searching start DM
 			 dmEnd : double
@@ -705,7 +593,7 @@ DMTime* dm_search_tree(FilterBank & indata, double dmStart,double dmEnd, double 
     double dmStepMin;
 		double max_delay;
 		int dmNUM;
-		int i;
+		int i,j;
 		int max_delay_time_bin;
 		int add_data_flag = 0;
     int add_time_bin = 0;
@@ -736,6 +624,7 @@ DMTime* dm_search_tree(FilterBank & indata, double dmStart,double dmEnd, double 
 		if (add_data_flag == 1){
 				add_time_bin = max_delay_time_bin + dedsps_num_time_bin - indata.numTimeBin;
 				indata.resize_time_bin(indata.numTimeBin + add_time_bin);
+				data_mask.resize_time_bin(data_mask.numTimeBin + add_time_bin);
 		}
 
 		if (dmStep<dmStepMin){
@@ -750,7 +639,7 @@ DMTime* dm_search_tree(FilterBank & indata, double dmStart,double dmEnd, double 
 				DMSarray[i].cal_sftIdx(indata.freqAxis,indata.timeStep,indata.freqAxis.front());
 				DMSarray[i].get_smearSize();
 				DMSarray[i].cal_sltIdx(indata.freqAxis,indata.timeStep,indata.freqAxis.back());
-				DMSarray[i].cal_normNum();
+				DMSarray[i].cal_normNum(data_mask);
 		}
 
 		cout<<"Calculate cut frequency index"<<endl;
@@ -768,6 +657,6 @@ DMTime* dm_search_tree(FilterBank & indata, double dmStart,double dmEnd, double 
 		dmt->set_timeAxis(indata.timeAxis.front());
 		dmt->set_DM_time_power();
 		dmt->set_normArray();
-		int status = compute_DM_t_power_tree_smrt(indata, *dmt, DMSarray, dedsps_num_time_bin);
+		int status = compute_DM_t_power_tree_smrt(indata, data_mask, *dmt, DMSarray, dedsps_num_time_bin);
 		return dmt;
 }

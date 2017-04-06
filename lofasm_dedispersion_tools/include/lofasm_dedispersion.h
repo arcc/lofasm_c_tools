@@ -120,7 +120,7 @@ void get_smearSize() :
         // Calculate select index based on higher frequency.
         void cal_sltIdx(vector<double> freqAxis, double timeStep, double refFreq);
         // Calculate the normalize number
-        void cal_normNum();
+        void cal_normNum(FilterBank & data_mask);
         void get_smearSize();
 };
 /*Finish define DM_sltIndex*/
@@ -177,7 +177,7 @@ set_DM_time_power : Allocate the DM time power vector
         int numTimeBin;
 
         vector< vector<double> > DM_time_power;
-        vector<double> normArray;
+        vector< vector<double> > normArray;
 
         DMTime (int numDMbin, int numTBin, double tStep);
         void set_timeAxis(double timeStart);
@@ -223,13 +223,14 @@ int compute_DM_t_power_tree_dommy(FilterBank & data, DMTime & DMT, \
 int compute_DM_t_power_tree(FilterBank & data, DMTime & DMT, \
                             vector<DM_sltIndex> & DMsftArray);
 
-int compute_DM_t_power_tree_smrt(FilterBank & data, DMTime & DMT, \
+int compute_DM_t_power_tree_smrt(FilterBank & data, FilterBank & data_mask, DMTime & DMT, \
                                  vector<DM_sltIndex> & DMsftArray, int terminate_idx);
 
 int cal_cut_freq_index(DM_sltIndex & DMsft0, DM_sltIndex & DMsft1);
 
-DMTime* dm_search_tree(FilterBank & indata, double dmStart, double dmEnd,\
-                        double dmStep, int dedsps_num_time_bin);
+DMTime* dm_search_tree(FilterBank & indata, FilterBank & data_mask,
+                       double dmStart, double dmEnd, double dmStep, \
+                       int dedsps_num_time_bin);
 
 
 #endif
