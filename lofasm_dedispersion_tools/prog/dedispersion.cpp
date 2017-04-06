@@ -5,6 +5,7 @@
 #include<vector>
 #include<algorithm>
 #include<fstream>
+#include <time.h>
 
 #include "lofasm_data_class.h"
 #include "lofasm_files.h"
@@ -14,20 +15,27 @@
 #define MAX_TIME_BIN 5e5
 int main(int argc, char* argv[]){
   // Check input argument
-  if( (argc != 7) && (argc != 8) ){
+  if( argc < 7 ){
      cerr << "Invalid input arguments!"<< endl;
-     cerr << "Usage: " << argv[0] << " -df <Data_file> -cf <config_file> -o <output_name>" <<endl;
-     cerr << "Or: " << argv[0] << " -df <Data_file> -dm dm_low dm_high -o <output_name>" <<endl;
+     cerr << "Usage: " << argv[0] << " -df <Data_file> -cf <config_file> -o" \
+             " <output_name> --mf <Data_mask_file_name>" <<endl;
+     cerr << "Or: " << argv[0] << " -df <Data_file> -dm dm_low dm_high -o " \
+             "<output_name> --mf <Data_mask_file_name>" <<endl;
      return 1;
   }
-
+  // Check the runtime.
+  clock_t time1,time2;
+  time1 = clock();
   char datafile[1024];
   char config_file[1024];
   char out_file[1024];
+  char mask_file[1024];
   lfb_hdr head;
+  lfb_hdr mask_head;
   lfb_hdr dmt_head={};
   dedsps_config config;
   FILE *data_fp;
+  FILE *mask_fp;
   FILE *fpout;
   // Need config class
 
@@ -67,6 +75,9 @@ int main(int argc, char* argv[]){
           } else if (strcmp (argv[i],"-o")== 0) {
               strncpy(out_file, argv[i+1], sizeof(out_file));
               i++;
+          } else if (strcmp (argv[i],"--mf")== 0){
+              strncpy(mask_file, argv[i+1], sizeof(mask_file));
+              i++;
           } else if (strcmp (argv[i],"-dm")== 0){
               dm_low = atof(argv[i+1]);
               dm_high = atof(argv[i+2]);
@@ -78,16 +89,24 @@ int main(int argc, char* argv[]){
               i += 2;
           } else{
               cerr << "Unknow flag '" << argv[i] <<"'."<< endl;
-              cerr << "Usage: " << argv[0] << " -df <Data_file> -cf <config_file> -o <output_name>" <<endl;
-              cerr << "Or: " << argv[0] << " -df <Data_file> -dm dm_low dm_high -o <output_name>" <<endl;
+              cerr << "Usage: " << argv[0] << " -df <Data_file> -cf <config_file> -o" \
+                      " <output_name> --mf <Data_mask_file_name>" <<endl;
+              cerr << "Or: " << argv[0] << " -df <Data_file> -dm dm_low dm_high -o " \
+                      "<output_name> --mf <Data_mask_file_name>" <<endl;
               return 1;
           }
       }
   }
 
-
   data_fp = lfopen(datafile, "rb");
   lfbxRead(data_fp, &head, NULL);
+
+  if (strcmp (mask_file,"")!= 0){
+    mask_fp = lfopen(mask_file, "rb");
+    lfbxRead(mask_fp, &mask_head, NULL);
+    cout<< "Add data mask from file: "<<mask_file<<endl;
+  }
+
   // Convert freq to MHz. NOTE, the dedisperser takes frequency in MHz
   // We are assuming this is in Hz
   data_freq_step = bx_get_freq_step(head) / 1e6;
@@ -162,12 +181,27 @@ int main(int argc, char* argv[]){
 
   dedsps_end_index = (int)((dedsps_end_time - data_time_start)/data_time_step);
   FilterBank fdata(head.dims[1], head.dims[0]);
+  FilterBank data_mask(head.dims[1], head.dims[0]);
   // read data from file.
   cout<<"Reading data..."<<endl;
+  // TODO: When reading complex part is ok we need to modifiy it.
   read_bx2flt(data_fp, head, fdata, head.dims[0], 0);
 
+  cout<<"Forming data mask..."<<endl;
+  if (mask_fp != NULL){
+      read_bx2flt(mask_fp, mask_head, data_mask, mask_head.dims[0], 0);
+  }
+  else{
+      for(i=0; i<data_mask.numFreqBin; i++){
+          fill(data_mask.fltdata[i].begin(), data_mask.fltdata[i].end(), 1.0);
+      }
+      data_mask.set_freqAxis(fdata.freqAxis.front(), fdata.freqStep);
+      data_mask.set_timeAxis(fdata.timeAxis.front(), fdata.timeStep);
+  }
+
   cout<<"Starting dedispersion..."<<endl;
-  DMTime* DMT = dm_search_tree(fdata, dm_low, dm_high, dmStep, dedsps_end_index);
+  DMTime* DMT = dm_search_tree(fdata, data_mask, dm_low, dm_high, dmStep, \
+                               dedsps_end_index);
   dmt_head.hdr_type = dmt_hdr_type;
   dmt_head.hdr_version = head.hdr_version;
   dmt_head.station = head.station;
@@ -211,4 +245,13 @@ int main(int argc, char* argv[]){
   }
   cout<<"All done!"<<endl;
   fclose(fpout);
+  time2 = clock();
+  float time_diff ((float)time2-(float)time1);
+  float second = time_diff / CLOCKS_PER_SEC;
+  cout<<"Summary: "<<endl;
+  cout<< head.dim1_span << " " << head.dim1_label << " data has been processed."<<endl;
+  cout<<"Data frequency range from: "<<data_freq_start <<" MHz to "<<data_freq_end<<" MHz."<<endl;
+  cout<<dmt_head.dims[1]<< " DM trails has been conducted. From " \
+      <<DMT->dmAxis.front()<<" pc/cm^3 to "<< DMT->dmAxis.back() << " pc/cm^3."<<endl;
+  cout<<"Run time: "<<second<<" seconds."<<endl;
 }
