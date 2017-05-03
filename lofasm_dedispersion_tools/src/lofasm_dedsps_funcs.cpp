@@ -635,7 +635,7 @@ DMTime* dm_search_tree(FilterBank & indata, FilterBank & data_mask, \
 		vector<DM_sltIndex> DMSarray(dmNUM,DM_sltIndex (0.0));
 
 		for(i=0;i<dmNUM;i++){
-				DMSarray[i].DM = i*dmStep+0;
+				DMSarray[i].DM = i*dmStep + dmStart;
 				DMSarray[i].cal_sftIdx(indata.freqAxis,indata.timeStep,indata.freqAxis.front());
 				DMSarray[i].get_smearSize();
 				DMSarray[i].cal_sltIdx(indata.freqAxis,indata.timeStep,indata.freqAxis.back());
