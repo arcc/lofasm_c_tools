@@ -18,9 +18,11 @@ int main(int argc, char* argv[]){
   if( argc < 7 ){
      cerr << "Invalid input arguments!"<< endl;
      cerr << "Usage: " << argv[0] << " -df <Data_file> -cf <config_file> -o" \
-             " <output_name> --mf <Data_mask_file_name>" <<endl;
+             " <output_name> --mf <Data_mask_file_name> --e end_index_of_" \
+             "dedispersion "<<endl;
      cerr << "Or: " << argv[0] << " -df <Data_file> -dm dm_low dm_high -o " \
-             "<output_name> --mf <Data_mask_file_name>" <<endl;
+             "<output_name> --mf <Data_mask_file_name> --e end_index_of_" \
+             "dedispersion "<<endl;
      return 1;
   }
   // Check the runtime.
@@ -54,7 +56,8 @@ int main(int argc, char* argv[]){
   double dedsps_time_span;
   double dmStep = 0;
   double *outbuff;
-  int dedsps_end_index;
+  int dedsps_end_index = 0;
+  int dedsps_end_index_max;
   int dmNUM;
   int i, j, n;
   int result;
@@ -87,12 +90,17 @@ int main(int argc, char* argv[]){
                   dm_high = temp;
               }
               i += 2;
+          } else if (strcmp (argv[i],"--e")== 0){
+              dedsps_end_index = atoi(argv[i+1]);
+              i++;
           } else{
               cerr << "Unknow flag '" << argv[i] <<"'."<< endl;
               cerr << "Usage: " << argv[0] << " -df <Data_file> -cf <config_file> -o" \
-                      " <output_name> --mf <Data_mask_file_name>" <<endl;
+                      " <output_name> --mf <Data_mask_file_name> --e end_index_of_" \
+                      "dedispersion"<<endl;
               cerr << "Or: " << argv[0] << " -df <Data_file> -dm dm_low dm_high -o " \
-                      "<output_name> --mf <Data_mask_file_name>" <<endl;
+                      "<output_name> --mf <Data_mask_file_name> --e end_index_of_" \
+                      "dedispersion"<<endl;
               return 1;
           }
       }
@@ -178,8 +186,12 @@ int main(int argc, char* argv[]){
       cerr <<" a large time delay."<< endl;
       return 1;
   }
+  dedsps_end_index_max = (int)((dedsps_end_time - data_time_start)/data_time_step);
+  if (dedsps_end_index == 0 || dedsps_end_index > dedsps_end_index_max){
+      cout << "Dedispersion will be finished at the end of the file."<<endl;
+      dedsps_end_index = dedsps_end_index_max;
+  }
 
-  dedsps_end_index = (int)((dedsps_end_time - data_time_start)/data_time_step);
   FilterBank fdata(head.dims[1], head.dims[0]);
   FilterBank data_mask(head.dims[1], head.dims[0]);
   // read data from file.
