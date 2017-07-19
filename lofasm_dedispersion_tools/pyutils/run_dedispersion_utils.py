@@ -193,7 +193,7 @@ def slice_bbx_file(filename, slice_start_freq, slice_end_freq, outfile=None):
     filename: str
         File name
     slice_start_freq: float
-        The slice starting frequency in frequency.
+        The slice starting frequency in Hz.
     slice_end_freq: float, optional
         The slice ending frequency.
     """
@@ -242,15 +242,15 @@ def write_dedispersion_script(config_cls, file_info):
     out_line += "echo 'Finishing combining data'\n"
     # Chop the data
     chop_start_time = config_cls.time_start.value
-    chop_end_time = config_cls.time_end.value
+    chop_end_time = config_cls.time_end.value + config_cls.max_delay.value
     cmd = './../../lofasmio/lfchop -t ' + str(chop_start_time) + '+' \
           + str(chop_end_time) + ' ' + '-' + ' ' + '-'
     out_line += "echo 'Chopping data.'\n"
     out_line += cmd + '\n'
     out_line += "echo 'Finishing Chopping data'\n"
     # Slice data
-    slice_start_freq = config_cls.freq_start.value / 1e6
-    slice_end_freq = config_cls.freq_end.value / 1e6
+    slice_start_freq = config_cls.freq_start.value * 1e6
+    slice_end_freq = config_cls.freq_end.value * 1e6
     out_data_file = os.path.join(config_cls.script_dir, \
                     config_cls.config_base_name + '.bbx.gz')
     out_line += "echo 'Slicing data.'\n"
