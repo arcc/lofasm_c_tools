@@ -55,7 +55,8 @@ class DedspsConfig(object):
     @property
     def result_dir(self):
         if self.input_result_dir is not None:
-            return os.path.join(self.input_result_dir, self.result_dir_basename)
+            abspath = os.path.abspath(self.input_result_dir)
+            return os.path.join(abspath, self.result_dir_basename)
         else:
             return os.path.join(self.config_dir_path, self.result_dir_basename)
 
