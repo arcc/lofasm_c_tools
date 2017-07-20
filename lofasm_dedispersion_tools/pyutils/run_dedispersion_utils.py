@@ -33,6 +33,7 @@ def split_dedispersion_time(config_cls, sampling_time, sampling_freq, max_time_b
     """
     config = config_cls
     max_delay = config.max_delay
+    print max_delay
     spt =  sampling_time
     max_data_span = spt * max_time_bin
     if max_data_span - max_delay <= 0:
@@ -229,35 +230,39 @@ def write_dedispersion_script(config_cls, file_info):
     down_sample_size = (int)(config_cls.sampling_time / sampling_time)
     out_name = os.path.join(config_cls.script_dir, config_cls.config_base_name + '.sh')
     f = open(out_name, 'w')
-    f.write("#!/bin/bash")
+    f.write("#!/bin/bash\n")
     out_line = "echo 'Starting dedispersion for configuration %s.'\n" % \
                config_cls.config_base_name
     # Combining data
     cmd = './../../lofasmio/lfcat '
     for fn in files:
         cmd += fn + ' '
-    cmd += '-\n'
-    out_line += "echo 'Comining data.'\n"
-    out_line += cmd + '\n'
-    out_line += "echo 'Finishing combining data'\n"
+    cmd += '-'
+    out_line += "echo 'Preparing data.'\n"
+    out_line += cmd + ' | \n'
     # Chop the data
     chop_start_time = config_cls.time_start.value
     chop_end_time = config_cls.time_end.value + config_cls.max_delay.value
     cmd = './../../lofasmio/lfchop -t ' + str(chop_start_time) + '+' \
           + str(chop_end_time) + ' ' + '-' + ' ' + '-'
-    out_line += "echo 'Chopping data.'\n"
-    out_line += cmd + '\n'
-    out_line += "echo 'Finishing Chopping data'\n"
+    out_line += cmd + ' | \n'
     # Slice data
     slice_start_freq = config_cls.freq_start.value * 1e6
     slice_end_freq = config_cls.freq_end.value * 1e6
-    out_data_file = os.path.join(config_cls.script_dir, \
+    out_data_file = os.path.join(config_cls.result_dir, \
                     config_cls.config_base_name + '.bbx.gz')
-    out_line += "echo 'Slicing data.'\n"
     cmd = './../../lofasmio/lfslice -f ' + str(slice_start_freq) + '+' \
           + str(slice_end_freq) + ' ' + '-'+ ' ' + out_data_file
-    out_line += cmd + '\n'
-    out_line += "echo 'Finishing Slicing data.'\n"
+    out_line += cmd + '  \n'
+    if down_sample_size > 1:
+        out_line += "echo 'Down sample'"
+    out_line += "echo 'Finishing Preparing data.'\n"
+    # dedispersion program
+    out_dedsps_file = os.path.join(config_cls.result_dir, "dedispersed_" + \
+                                    config_cls.config_base_name + ".bbx.gz")
+    cmd = "dedispersion -df "+out_data_file + " -cf " + config_cls.config_file +\
+         " -o " + out_dedsps_file + "\n"
+    out_line += cmd
     f.write(out_line)
     f.close()
 

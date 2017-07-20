@@ -123,7 +123,6 @@ int main(int argc, char* argv[]){
   data_time_step = bx_get_time_step(head);
   data_time_start = bx_get_time_start(head);
   data_time_end = data_time_start + head.dim1_span;
-
   if (config.read_config_file(config_file, 0) == 0){
       config_mood = 1;
       dm_low = config.dm_start;
@@ -141,7 +140,7 @@ int main(int argc, char* argv[]){
       }
 
       // Check data if frequency band close to the target frequency.
-      if (fabs(config.freq_start < data_freq_start) > data_freq_step){
+      if (fabs(config.freq_start - data_freq_start) > data_freq_step){
           cerr <<"File "<<datafile<< " frequency starts at " << data_freq_start <<" MHz.";
           cerr <<" It is not close to target start frequency " << config.freq_start<<" MHz."<<endl;
           return 1;
@@ -178,7 +177,8 @@ int main(int argc, char* argv[]){
 
   // Check memery size
   max_time = max_delay + dedsps_end_time - data_time_start;
-  cout<< max_time<<endl;
+  cout<<"Aiming data time span:" <<max_time<<endl;
+  cout<<"Actual data time span:" <<head.dim1_span <<endl;
   if (max_time/data_time_step > MAX_TIME_BIN){
       cerr << "Error:"<<endl;
       cerr << "Too much total time to be processed. Check your DM range and ";
