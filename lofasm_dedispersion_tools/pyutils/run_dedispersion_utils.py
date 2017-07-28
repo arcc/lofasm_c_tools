@@ -140,7 +140,7 @@ def combine_bbx_files(files, outfile=None):
         outfile = 'Combined_lofasm_' + str(t['start_time'][0]) + '_' + \
                   str(t['end_time'][-1]) + '_' + t['channel'][0] + '.bbx.gz'
     #TODO need to change here
-    cmd = './../../lofasmio/lfcat '
+    cmd = 'lfcat '
     for fn in t['filename']:
         cmd += fn + ' '
     cmd += outfile
@@ -180,7 +180,7 @@ def chop_bbx_file(filename, chop_start_time, chop_end_time=None, outfile=None):
     if outfile is None:
         outfile = 'Chopped_lofasm_' + str(chop_start_time) + '_' + \
                   str(chop_end_time) + '_' + bbxf.header['channel'] + '.bbx.gz'
-    cmd = './../../lofasmio/lfchop -t ' + str(chop_start_time) + '+' \
+    cmd = 'lfchop -t ' + str(chop_start_time) + '+' \
           + str(chop_end_time) + ' ' + filename + ' ' + outfile
     subprocess.call(cmd, shell=True)
     print('Finished chopping data')
@@ -202,7 +202,7 @@ def slice_bbx_file(filename, slice_start_freq, slice_end_freq, outfile=None):
     if outfile is None:
         outfile = 'slice_lofasm_' + str(slice_start_freq/1e6) + '_' + \
                   str(slice_end_freq/1e6) + '_' + bbxf.header['channel'] + '.bbx.gz'
-    cmd = './../../lofasmio/lfslice -f ' + str(slice_start_freq) + '+' \
+    cmd = 'lfslice -f ' + str(slice_start_freq) + '+' \
           + str(slice_end_freq) + ' ' + filename + ' ' + outfile
     print("RUNNING: "+ cmd)
     subprocess.call(cmd, shell=True)
@@ -234,7 +234,7 @@ def write_dedispersion_script(config_cls, file_info):
     out_line = "echo 'Starting dedispersion for configuration %s.'\n" % \
                config_cls.config_base_name
     # Combining data
-    cmd = './../../lofasmio/lfcat '
+    cmd = 'lfcat '
     for fn in files:
         cmd += fn + ' '
     cmd += '-'
@@ -243,7 +243,7 @@ def write_dedispersion_script(config_cls, file_info):
     # Chop the data
     chop_start_time = config_cls.time_start.value
     chop_end_time = config_cls.time_end.value + config_cls.max_delay.value
-    cmd = './../../lofasmio/lfchop -t ' + str(chop_start_time) + '+' \
+    cmd = 'lfchop -t ' + str(chop_start_time) + '+' \
           + str(chop_end_time) + ' ' + '-' + ' ' + '-'
     out_line += cmd + ' | \n'
     # Slice data
@@ -251,7 +251,7 @@ def write_dedispersion_script(config_cls, file_info):
     slice_end_freq = config_cls.freq_end.value * 1e6
     out_data_file = os.path.join(config_cls.result_dir, \
                     config_cls.config_base_name + '.bbx.gz')
-    cmd = './../../lofasmio/lfslice -f ' + str(slice_start_freq) + '+' \
+    cmd = 'lfslice -f ' + str(slice_start_freq) + '+' \
           + str(slice_end_freq) + ' ' + '-'+ ' ' + out_data_file
     out_line += cmd + '  \n'
     if down_sample_size > 1:

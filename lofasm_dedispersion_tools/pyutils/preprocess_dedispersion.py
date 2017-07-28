@@ -16,18 +16,6 @@ if __name__ == "__main__":
     parser.add_argument("-input",help="input data file or a directory", nargs='*')
     parser.add_argument("--o", help="Out put result directory", default=None)
 
-
-
-    # parser.add_argument("--list_generators", help="List all the built-in signal" \
-    #                     " and noise generators", action=ListGenAction, nargs=0)
-    # parser.add_argument("--generator_help", help="Print the help for a built-in" \
-    #                     " data generator", action=GenHelpAction)
-    # parser.add_argument("--plot",help="Plot simulated filter bank data",
-    #                     action="store_true",default=False)
-    # parser.add_argument("--saveplot",help="Save simulate data plot",
-    #                     action="store_true",default=False)
-    # parser.add_argument("--savefile",help="Save intermeida files",
-    #                     action="store_true",default=False)
     args = parser.parse_args()
     configf = args.config
     in_file = args.input
