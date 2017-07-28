@@ -1,3 +1,7 @@
+PREFIX = $(HOME)
+BINDIR = $(PREFIX)/bin
+LIBDIR = $(PREFIX)/lib
+INCLUDEDIR = $(PREFIX)/include
 SOURCES = $(wildcard *.cpp)
 EXECUTABLE = $(patsubst %.cpp,%,$(SOURCES))
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
@@ -12,5 +16,9 @@ LDLIBS = ../lib/lib_lofasm_dedispersion.a ../../lofasmio/liblofasmio.a -lz
 all:$(EXECUTABLE)
 #:$(SOURCES)
   #$(CXX) $(CPPFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $<
+
+install:
+	mkdir -p $(BINDIR);
+	cp $(EXECUTABLE) $(BINDIR)
 clean:
 	$(RM) $(OBJECTS) $(EXECUTABLE) *~
