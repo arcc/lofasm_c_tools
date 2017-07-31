@@ -4,6 +4,7 @@ import dedsps_config as dpc
 from lofasm.data_file_info.data_file_info import LofasmFileInfo
 import argparse
 import astropy.units as u
+import numpy as np
 import run_dedispersion_utils as rdu
 MAX_TIME_BIN = 10000
 
