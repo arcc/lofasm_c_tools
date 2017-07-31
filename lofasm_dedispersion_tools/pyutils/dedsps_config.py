@@ -87,7 +87,7 @@ class DedspsConfig(object):
                     unit = getattr(self, line[0]).unit
                 else:
                     unit = None
-            if line[0] in self.keys:
+            if line[0] in self.keys.keys():
                 val = self.keys[line[0]](line[1])
                 if unit is not None:
                     setattr(self, line[0], val*unit)
@@ -95,7 +95,7 @@ class DedspsConfig(object):
                     setattr(self, line[0], val)
             else:
                  setattr(self, line[0], line[1])
-                 self.keys.append(line[0])
+                 self.keys[line[0]] = type(line[1])
         f.close()
 
     def write_config(self, filename):
