@@ -1,4 +1,4 @@
 [submodule "lofasmio"]
 	path = lofasmio
-	url = git@github.com:luojing1211/lofasmio.git
+	url = https://github.com/luojing1211/lofasmio.git
 	ignore = untracked
