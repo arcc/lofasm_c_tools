@@ -161,6 +161,9 @@ int main(int argc, char* argv[]){
           if (data_time_end < config.time_end){
               dedsps_end_time = data_time_end;
           }
+          else{
+              dedsps_end_time = config.time_end;
+          }
       }
       // Set the dedispersion end time to the config end time.
       else{
@@ -183,8 +186,8 @@ int main(int argc, char* argv[]){
 
   // Check memery size
   max_time = max_delay + dedsps_end_time - data_time_start;
-  cout<<"Aiming data time span:" <<max_time<<endl;
-  cout<<"Actual data time span:" <<head.dim1_span <<endl;
+  cout<<"Aiming data time span:" <<max_time <<" seconds."<<endl;
+  cout<<"Actual data time span:" <<head.dim1_span <<" seconds."<<endl;
   if (max_time/data_time_step > MAX_TIME_BIN){
       cerr << "Error:"<<endl;
       cerr << "Too much total time to be processed. Check your DM range and ";
