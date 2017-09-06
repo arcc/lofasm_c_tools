@@ -53,6 +53,7 @@ int main(int argc, char* argv[]){
   double data_freq_step;
   double data_freq_end;
   double dedsps_end_time;
+  // What about start time
   double dedsps_time_span;
   double dmStep = 0;
   double *outbuff;
@@ -156,10 +157,15 @@ int main(int argc, char* argv[]){
           cerr <<"File "<<datafile<< " does not cover the required dedispersion time ranage:"<<endl;
           cerr <<"Required time from config file: "<< config.time_start << " "<< config.time_end<<endl;
           cerr <<"Provided time from data file  : "<< data_time_start << " "<< data_time_end <<endl;
-          return 1;
+          cerr <<"Using data file provided time. "<< endl;
+          if (data_time_end < config.time_end){
+              dedsps_end_time = data_time_end;
+          }
       }
       // Set the dedispersion end time to the config end time.
-      dedsps_end_time = config.time_end;
+      else{
+          dedsps_end_time = config.time_end;
+      }
   }
   else{
       // no config file will give the dedispersion end time as data end time.
