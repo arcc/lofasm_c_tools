@@ -195,7 +195,8 @@ int main(int argc, char* argv[]){
       cerr <<" a large time delay."<< endl;
       return 1;
   }
-  dedsps_end_index_max = (int)((dedsps_end_time - data_time_start)/data_time_step);
+  dedsps_end_index = (int)((dedsps_end_time - data_time_start)/data_time_step);
+  dedsps_end_index_max = (int)((data_time_end - data_time_start)/data_time_step);
   if (dedsps_end_index == 0 || dedsps_end_index > dedsps_end_index_max){
       cout << "Dedispersion will be finished at the end of the file."<<endl;
       dedsps_end_index = dedsps_end_index_max;
