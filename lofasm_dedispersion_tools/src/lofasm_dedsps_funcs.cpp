@@ -248,6 +248,13 @@ int compute_DM_t_power_tree_smrt(FilterBank & data, FilterBank & data_mask, \
     // Calculate first DM for T_Power array
     /* loop over time bin last*/
 
+		/* Apply the mask array to filter bank data*/
+		for(i=0; i<numtBin; i++){
+			  for(j=0; j<numfBin; j++){
+					  data.fltdata[j][i] *= data_mask.fltdata[j][i];
+				}
+		}
+
 		/* Do first dm */
     cout<<"Start tree method."<<endl;
 		//printf("%%%d dedispersion process finished.\r", 0.0/numDM);
@@ -259,8 +266,7 @@ int compute_DM_t_power_tree_smrt(FilterBank & data, FilterBank & data_mask, \
 						sltIEnd[j] = DMsftArray[0].sltIdx[j][1];
 						/* Do summation for this time bin */
 						for(k=0;k<sltIEnd[j]-sltIStart[j]+1;k++){
-								DMT.DM_time_power[0][i] += data.fltdata[j][i+k+sltIStart[j]] * \
-								                           data_mask.fltdata[j][i+k+sltIStart[j]];
+								DMT.DM_time_power[0][i] += data.fltdata[j][i+k+sltIStart[j]];
 								DMT.normArray[0][i] += data_mask.fltdata[j][i+k+sltIStart[j]];
 						}
 				}
@@ -292,15 +298,13 @@ int compute_DM_t_power_tree_smrt(FilterBank & data, FilterBank & data_mask, \
 						for(j=0;j<=fcutIndex;j++){
 								/*Substract the power we don't need*/
 								for(loop1=0;loop1<sltdiff[j][0];loop1++){
-										curPower = curPower - data.fltdata[j][i+sltIpStart[j]+loop1] * \
-										           data_mask.fltdata[j][i+sltIpStart[j]+loop1];
+										curPower = curPower - data.fltdata[j][i+sltIpStart[j]+loop1];
 										curNorm = curNorm - data_mask.fltdata[j][i+sltIpStart[j]+loop1];
 								}
 
 								/*Add new powers */
 								for(loop2=0;loop2<sltdiff[j][1];loop2++){
-										curPower = curPower+ data.fltdata[j][i+sltIEnd[j]-loop2] * \
-										           data_mask.fltdata[j][i+sltIEnd[j]-loop2];
+										curPower = curPower+ data.fltdata[j][i+sltIEnd[j]-loop2];
 										curNorm = curNorm + data_mask.fltdata[j][i+sltIEnd[j]-loop2];
 								}
 
