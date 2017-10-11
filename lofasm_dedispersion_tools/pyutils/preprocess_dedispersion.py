@@ -6,7 +6,7 @@ import argparse
 import astropy.units as u
 import numpy as np
 import run_dedispersion_utils as rdu
-MAX_TIME_BIN = 10000
+MAX_TIME_BIN = 20000
 
 
 if __name__ == "__main__":
@@ -35,8 +35,8 @@ if __name__ == "__main__":
         config.time_start = np.array(start_times).min() * u.second
         _, time_spans = dir_info.get_info_all_dirs('time_span')
         end_times = np.array(start_times) + np.array(time_spans)
-        config.time_end = end_times.min() * u.second
-
+        config.time_end = end_times.max() * u.second
+    print config.time_start, config.time_end
     # NOTE We are assuming that the sampling frequency will not be changed amount
     # lofasm files. And the unit is Hz
     lofasm_files = dir_info.search_files('key', True, column_name='hdr_type', \

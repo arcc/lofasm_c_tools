@@ -54,6 +54,13 @@ def split_dedispersion_time(config_cls, sampling_time, sampling_freq, max_time_b
     # Breaking the total time to truncks.
     i = 0
     new_config = copy.deepcopy(config)
+    # NOTE if there is config files in the the script directory, it will clean them 
+    oldfiles = os.listdir(new_config.script_dir)
+    if len(oldfiles) > 0:
+        print("The target script directory has old scripts. They will be deleted.\n")
+    for fileName in oldfiles:
+        os.remove(os.path.join(new_config.script_dir, fileName))
+    # Write new configs
     while total_data_span > max_data_span:
         i += 1
         new_time_end = max_data_span - max_delay + new_config.time_start
@@ -87,7 +94,6 @@ def select_files_by_config(config_cls, file_info, files=None):
     """
     fs = set([])
     for ii, k in enumerate(config_cls.kw_keys):
-        print k, getattr(config_cls, k), config_cls.config_file
         result = file_info.search_files('key', True, column_name=k, \
                                   condition = getattr(config_cls, k))
         if ii == 0:
@@ -98,6 +104,7 @@ def select_files_by_config(config_cls, file_info, files=None):
         time_result = file_info.search_files('time', True, search_range=[config_cls.time_start.value,
                                         config_cls.time_end.value + config_cls.max_delay.value])
     fs = fs.intersection(set(time_result))
+    print("%s files are included for the config file '%s'"%(len(fs), config_cls.config_file))
     return list(fs)
 
 def combine_bbx_files(files, outfile=None):
