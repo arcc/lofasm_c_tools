@@ -42,7 +42,6 @@ class DedspsConfig(object):
         # Config prefix is not a property
         if self.config_prefix == '':
             self.config_prefix = self.config_base_name
-
     @property
     def config_base_name(self):
         bn = os.path.basename(self.config_file)
@@ -56,7 +55,9 @@ class DedspsConfig(object):
     def result_dir(self):
         if self.input_result_dir is not None:
             abspath = os.path.abspath(self.input_result_dir)
-            return os.path.join(abspath, self.result_dir_basename)
+            return abspath
+            # print "RESSSS", self.input_result_dir, abspath
+            # return os.path.join(abspath, self.result_dir_basename)
         else:
             return os.path.join(self.config_dir_path, self.result_dir_basename)
 

@@ -229,6 +229,7 @@ def write_dedispersion_script(config_cls, file_info):
     sampling_time = file_example['sampling_time'][0] * u.second
     down_sample_size = (int)(config_cls.sampling_time / sampling_time)
     out_name = os.path.join(config_cls.script_dir, config_cls.config_base_name + '.sh')
+    print 'SCRIPT', config_cls.script_dir
     f = open(out_name, 'w')
     f.write("#!/bin/bash\n")
     out_line = "echo 'Starting dedispersion for configuration %s.'\n" % \
@@ -266,10 +267,10 @@ def write_dedispersion_script(config_cls, file_info):
         normalize_window = '-w ' + str(config_cls.normalize_window)
     else:
         normalize_window = ""
-    cmd = "normalize_data.py " + out_data_file + '-c ' + normalize_window
+    cmd = "normalize_data.py " + out_data_file + ' -c ' + normalize_window
     normalize_out = os.path.join(config_cls.result_dir, \
                     config_cls.config_base_name + '_normalized.bbx.gz')
-
+    out_line += cmd + ' \n'
     out_line += "echo 'Finishing Preparing data.'\n"
     # dedispersion program
     out_dedsps_file = os.path.join(config_cls.result_dir, "dedispersed_" + \

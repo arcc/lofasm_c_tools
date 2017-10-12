@@ -53,7 +53,7 @@ if __name__ == "__main__":
         sconfig_path = os.path.join(config.script_dir, f)
         # try the read the splited config files.
         try:
-            cfg = dpc.DedspsConfig(sconfig_path, result_dir)
+            cfg = dpc.DedspsConfig(sconfig_path, config.result_dir)
         except:
             continue
         rdu.write_dedispersion_script(cfg, dir_info)
