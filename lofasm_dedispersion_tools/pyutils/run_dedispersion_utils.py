@@ -55,7 +55,10 @@ def split_dedispersion_time(config_cls, sampling_time, sampling_freq, max_time_b
     i = 0
     new_config = copy.deepcopy(config)
     # NOTE if there is config files in the the script directory, it will clean them 
-    oldfiles = os.listdir(new_config.script_dir)
+    try:
+        oldfiles = os.listdir(new_config.script_dir)
+    except OSError:
+        oldfiles = []
     if len(oldfiles) > 0:
         print("The target script directory has old scripts. They will be deleted.\n")
     for fileName in oldfiles:
