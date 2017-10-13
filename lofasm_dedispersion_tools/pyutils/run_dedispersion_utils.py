@@ -234,12 +234,12 @@ def write_dedispersion_script(config_cls, file_info):
     f.write("#!/bin/bash\n")
     out_line = "echo 'Starting dedispersion for configuration %s.'\n" % \
                config_cls.config_base_name
+    out_line += "echo 'Preparing data.'\n"
     # Combining data
     cmd = 'lfcat '
     for fn in files:
         cmd += fn + ' '
     cmd += '-'
-    out_line += "echo 'Preparing data.'\n"
     out_line += cmd + ' | \n'
     # Chop the data
     chop_start_time = config_cls.time_start.value
@@ -259,17 +259,34 @@ def write_dedispersion_script(config_cls, file_info):
     if down_sample_size > 1:
         out_line += "echo 'Down sample'"
 
-    out_line += "echo Normalizing data.\n"
+    out_line += "echo Cleaning and normalizing data.\n"
 
-    # Normalize data.
-    ###TODO need to complete here.
+    # clean data.
     if hasattr(config_cls, 'normalize_window'):
-        normalize_window = '-w ' + str(config_cls.normalize_window)
+        normalize_window = ' -w ' + str(config_cls.normalize_window)
     else:
         normalize_window = ""
-    cmd = "normalize_data.py " + out_data_file + ' -c ' + normalize_window
+
+    if hasattr(config_cls, 'narrowband_threshold'):
+        narrowband_threshold = ' -nt ' + str(config_cls.narrowband_threshold)
+    else:
+        narrowband_threshold = ""
+
+    if hasattr(config_cls, 'wideband_threshold'):
+        wideband_threshold = ' -wt ' + str(config_cls.wideband_threshold)
+    else:
+        wideband_threshold = ""
+
+    if hasattr(config_cls, 'outlier_threshold'):
+        outlier_threshold = ' -ot ' + str(config_cls.outlier_threshold)
+    else:
+        outlier_threshold = ""
+
+    cmd = "clean_data.py " + out_data_file + ' -c -n' + normalize_window + \
+           narrowband_threshold + wideband_threshold + outlier_threshold
+
     normalize_out = os.path.join(config_cls.result_dir, \
-                    config_cls.config_base_name + '_normalized.bbx.gz')
+                    config_cls.config_base_name + '_cleaned_normalized.bbx.gz')
     out_line += cmd + ' \n'
     out_line += "echo 'Finishing Preparing data.'\n"
     # dedispersion program
