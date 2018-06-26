@@ -254,8 +254,14 @@ def write_dedispersion_script(config_cls, file_info):
     cmd = 'lfslice -f ' + str(slice_start_freq) + '+' \
           + str(slice_end_freq) + ' ' + '-'+ ' ' + out_data_file
     out_line += cmd + '  \n'
+
+    out_line += "echo Normalizing data.\n"
+    # Normalize data.
+    ###TODO need to complete here.
+    cmd = "normalize_data.py " + out_data_file +
     if down_sample_size > 1:
         out_line += "echo 'Down sample'"
+
     out_line += "echo 'Finishing Preparing data.'\n"
     # dedispersion program
     out_dedsps_file = os.path.join(config_cls.result_dir, "dedispersed_" + \

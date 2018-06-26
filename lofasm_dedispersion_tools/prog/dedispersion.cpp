@@ -32,6 +32,7 @@ int main(int argc, char* argv[]){
   char config_file[1024];
   char out_file[1024];
   char mask_file[1024];
+  int mask_flag = 0;
   lfb_hdr head;
   lfb_hdr mask_head;
   lfb_hdr dmt_head={};
@@ -81,6 +82,7 @@ int main(int argc, char* argv[]){
               i++;
           } else if (strcmp (argv[i],"--mf")== 0){
               strncpy(mask_file, argv[i+1], sizeof(mask_file));
+              mask_flag = 1;
               i++;
           } else if (strcmp (argv[i],"-dm")== 0){
               dm_low = atof(argv[i+1]);
@@ -110,10 +112,13 @@ int main(int argc, char* argv[]){
   data_fp = lfopen(datafile, "rb");
   lfbxRead(data_fp, &head, NULL);
 
-  if (strcmp (mask_file,"")!= 0){
+  if (mask_flag == 1){
     mask_fp = lfopen(mask_file, "rb");
     lfbxRead(mask_fp, &mask_head, NULL);
     cout<< "Add data mask from file: "<<mask_file<<endl;
+  }
+  else{
+    mask_fp = NULL;
   }
 
   // Convert freq to MHz. NOTE, the dedisperser takes frequency in MHz
@@ -186,8 +191,9 @@ int main(int argc, char* argv[]){
 
   // Check memery size
   max_time = max_delay + dedsps_end_time - data_time_start;
-  cout<<"Aiming data time span:" <<max_time <<" seconds."<<endl;
-  cout<<"Actual data time span:" <<head.dim1_span <<" seconds."<<endl;
+  cout<<"Dedispersing data time span :" <<head.dim1_span <<" seconds."<<endl;
+  cout<<"Required data time span for dedispersion :" <<max_time <<" seconds."<<endl;
+
   if (max_time/data_time_step > MAX_TIME_BIN){
       cerr << "Error:"<<endl;
       cerr << "Too much total time to be processed. Check your DM range and ";
@@ -224,6 +230,7 @@ int main(int argc, char* argv[]){
   cout<<"Starting dedispersion..."<<endl;
   DMTime* DMT = dm_search_tree(fdata, data_mask, dm_low, dm_high, dmStep, \
                                dedsps_end_index);
+  // Write out put result header.
   dmt_head.hdr_type = dmt_hdr_type;
   dmt_head.hdr_version = head.hdr_version;
   dmt_head.station = head.station;
@@ -245,6 +252,8 @@ int main(int argc, char* argv[]){
   dmt_head.dims[1] = DMT->numDM;
   dmt_head.dims[2] = 1;
   dmt_head.dims[3] = 64;
+  cout<<"Time " <<dmt_head.dims[0]<<endl;
+  cout<<"DMS "<<dmt_head.dims[1]<<endl;
   if (!(fpout = lfopen(out_file, "wb"))){
     lf_error( "could not open output %s", out_file);
     exit(1);
