@@ -4,7 +4,8 @@ CXX=g++
 RM=rm -f
 IDIR = include
 IODIR = ../lofasmio/
-CPPFLAGS=-g -I$(IDIR) -I$(IODIR)
+OPTDIR = /opt/local/include
+CPPFLAGS=-g -I$(IDIR) -I$(IODIR) -I$(OPTDIR)
 SOURCES= $(wildcard src/*.cpp)
 OBJECTS = $(addprefix lib/,$(notdir $(SOURCES:.cpp=.o)))
 TESTSRC = $(wildcard tests/*.cpp)

@@ -5,6 +5,7 @@
 #include<string>
 #include<vector>
 #include "dedispersion.h"
+#include "dedispersion_utils.h"
 
 int main(){
   int i;
@@ -45,8 +46,8 @@ int main(){
   end_idx2 = 9;
   std::cout << "Dedisperison start index new : "<<start_idx2<<std::endl;
   std::cout << "Dedisperison end index new : "<<end_idx2<<std::endl;
-  sum_next_dm(start_idx, end_idx, start_idx2, end_idx2, test_chan, result,
-              result2);
+  sum_next_dm(start_idx, end_idx, start_idx2, end_idx2, num_dedsps_time_bin, \
+              test_chan, result, result2);
   sum_channel(num_dedsps_time_bin, start_idx2, end_idx2, test_chan, target2);
   std::cout<< "Result2 " << " Target"<<std::endl;
   for (i = 0; i < 10 ; i++ ){
@@ -57,8 +58,8 @@ int main(){
     }
   }
   std::cout<<"Test function 'sum_next_dm_big_diff'. "<<std::endl;
-  sum_next_dm_big_diff(start_idx, end_idx, start_idx2, end_idx2, test_chan,
-                       result, result3);
+  sum_next_dm_big_diff(start_idx, end_idx, start_idx2, end_idx2,  \
+                       num_dedsps_time_bin, test_chan, result, result3);
   std::cout<< "Result3 " << " Target"<<std::endl;
   for (i = 0; i < 10 ; i++ ){
     std::cout<< result3[i]<<" "<<target2[i]<<std::endl;
