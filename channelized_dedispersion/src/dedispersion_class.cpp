@@ -79,12 +79,15 @@ void ChanDedsprs::get_identical_sum_idx(){
   int interval_front;
   int interval_back;
   int size_sum_idx;
+  int ref_dm_idx;
   std::vector<int> interval(2, 0);
   if (sum_idxs.size() == 0){
     std::cerr<< "Please compute the sum indices first.";
     std::exit(1);
   }
   interval_front = 0;
+  ref_dm_idx = 0;
+  dedsprs_ref_map.push_back(ref_dm_idx);
   size_sum_idx = sum_idxs.size();
   for ( i=1; i < size_sum_idx; i++ ){
     // The sum indices are the same for two DMs.
@@ -92,12 +95,15 @@ void ChanDedsprs::get_identical_sum_idx(){
         sum_idxs[i][1] == sum_idxs[interval_front][1]){
           // Check if i is the last index
           if (i != size_sum_idx - 1 ){
+            dedsprs_ref_map.push_back(ref_dm_idx);
             continue;
           }
+          // All the DM sum indices are indentical.
           else{
             interval[0] = interval_front;
             interval[1] = i;
             identical_sum_intervals.push_back(interval);
+            dedsprs_ref_map.push_back(ref_dm_idx);
           }
     }
     else{
@@ -112,6 +118,8 @@ void ChanDedsprs::get_identical_sum_idx(){
         identical_sum_intervals.push_back(interval);
         interval_front = i;
       }
+      dedsprs_ref_map.push_back(ref_dm_idx);
+      ref_dm_idx = i;
     }
   }
 }
@@ -132,6 +140,7 @@ void ChanDedsprs::organize_dedispersion(){
   int end_idx_diff;
   int num_sums; // number of summation needed to finish one time bin's dedispersion
   int size_sum_idx;
+  int idx_in_result;
 
   if (sum_idxs.size() == 0){
     std::cerr<< "Please compute the sum indices first.";
@@ -143,9 +152,15 @@ void ChanDedsprs::organize_dedispersion(){
   dm_method.push_back(DedsprsMethod(0,0));
   dm_method[0].method = sum_one_dm;
   dm_method[0].method_id = 1;
+  idx_in_result = 0;
+  dm_method[0].result_idx = idx_in_result;
+  dm_method[0].ref_result_idx = 0;
+
+
   size_sum_idx = sum_idxs.size();
   for ( i=1; i < size_sum_idx; i++ ){
-    dm_method.push_back(DedsprsMethod(i-1 , i));
+    // dedsprs_ref_map[i] should always be smaller than i
+    dm_method.push_back(DedsprsMethod(dedsprs_ref_map[i] , i));
     start_idx_diff = sum_idxs[i][0] - sum_idxs[i-1][0];
     end_idx_diff = sum_idxs[i][1] - sum_idxs[i-1][1];
     num_sums = start_idx_diff + end_idx_diff;
@@ -158,14 +173,47 @@ void ChanDedsprs::organize_dedispersion(){
     else if (num_sums < 3){
       dm_method[i].method = sum_next_dm;
       dm_method[i].method_id = 2;
+      idx_in_result += 1;
     }
     // If the sum index has big difference with last dm trail, use big sum.
     else{
       dm_method[i].method = sum_next_dm_big_diff;
       dm_method[i].method_id = 3;
+      idx_in_result += 1;
     }
+    dm_method[i].result_idx = idx_in_result;
+    dm_method[i].ref_result_idx = dm_method[dedsprs_ref_map[i]].result_idx;
+  }
+}
+
+void ChanDedsprs::get_dedispersion_idx(){
+  int i, j;
+  int push_index;
+  // push the first index into dedispersion indices.
+  push_index = -1;
+  //dedsprs_idxs_dm.push_back(push_index);
+  // subtruck the DMs that has identical sum index.
+  for ( i = 0 ; i < identical_sum_intervals.size(); i++){
+    // add indces between the same index intervals
+    for ( j = push_index + 1; j <= identical_sum_intervals[i][0]; j++){
+      dedsprs_idxs_dm.push_back(j);
+      push_index = identical_sum_intervals[i][1];
+    }
+  }
+  // Add indices to the end
+  for (j = push_index + 1; j < num_dm_bin ; j++){
+    dedsprs_idxs_dm.push_back(j);
   }
 }
 
 
 // Finish defining class method for ChanDedsprs
+//////////////////////////////////////////////////
+std::vector<double> ChanData::get_time_axis(){
+  int i;
+  std::vector<double> time_axis(num_time_bin, 0.0);
+  for(i = 0 ; i < time_axis.size(); i++){
+    time_axis[i] = start_time + i * time_step;
+  }
+  return time_axis;
+}

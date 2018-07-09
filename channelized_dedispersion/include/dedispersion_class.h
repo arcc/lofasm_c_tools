@@ -16,7 +16,10 @@ class DedsprsMethod
   public:
     int ref_dm_idx;
     int curr_dm_idx;
-    int method_id;
+    int method_id;           // This is the ID the summation method
+    int result_idx;          // The index where the result is saved in the results array
+    int ref_result_idx;      // The reference index of result array
+
     boost::function8 < int, int, int, int, int, int, std::vector<double>&, \
                        std::vector<double>&, std::vector<double>& > method;
 
@@ -46,7 +49,12 @@ class ChanDedsprs
     // this is the result data.
     std::vector< std::vector<double> > data;
     std::vector< std::vector<int> > sum_idxs;
-    std::vector< DedsprsMethod > dm_method;
+    std::vector<int> dedsprs_idxs_dm; // The indices that needs dedispersion
+    std::vector<int> dedsprs_ref_map; // Reference DM trail indices
+    std::vector<int> dedspsr_result_map;  // The DM result indices
+    std::vector< DedsprsMethod > dm_method; // DM method.
+    std::vector<int> normalize_num; // The number of normalizing for each DM trail.
+
 
     // Constructor
     ChanDedsprs (double input_freq, double input_bandwidth);
@@ -56,7 +64,9 @@ class ChanDedsprs
     void init_data(int target_num_time_bin, int target_num_dm_bin );
     void get_sum_idxs();
     void get_identical_sum_idx();
+    void get_dedispersion_idx();
     void organize_dedispersion();
+    void get_result_map();
 }; // Finish define the ChanDedsprs class
 
 // This is a class for storing the channelized data. The data should be an 1D
@@ -68,11 +78,37 @@ class ChanData
     double chan_bandwidth;
     double start_time;
     double time_step;
-    double num_time_bin;
+    int num_time_bin;
     std::vector<double> data;
 
-
+    std::vector<double> get_time_axis();
+    //int read_data();
 }; // Finish define the ChanData class
+
+class DedsprsResult
+{
+  public:
+    std::vector<double> time_axis;
+    double time_start;
+    double time_step;
+    int num_time_bin;
+
+    std::vector<double> dm_axis;
+    double dm_start;
+    double dm_step;
+    int num_dm_bin;
+
+    std::vector< std::vector<double> > data;
+    std::vector< std::vector<double> > normArray;
+
+    // Constructor
+    DedsprsResult (double time_start, double time_step, int num_time_bin,
+                   double dm_start, double dm_step, int num_dm_bin);
+    // Class methods
+    int map_time_idx(double time);
+    int map_dm_idx(double dm);
+
+};
 
 
 #endif  // DEDISPERSION_CLASS_H_

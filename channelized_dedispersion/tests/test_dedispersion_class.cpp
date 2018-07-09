@@ -74,6 +74,8 @@ int main(){
   // }
 
   for ( i=0; i < chan_results.size() ; i++ ){
+    chan_results[i].get_identical_sum_idx();
+    chan_results[i].get_dedispersion_idx();
     chan_results[i].organize_dedispersion();
   }
 
@@ -81,9 +83,19 @@ int main(){
   std::cout<< "DM sum_idx1 sum_idx2, method "<<std::endl;
 
   for (i=0; i < dm_axis.size(); i++ ){
-    std::cout<< dm_axis[i] << " "<< chan_results[480].sum_idxs[i][0] << " ";
-    std::cout<< chan_results[480].sum_idxs[i][1]<<" ";
-    std::cout<< chan_results[480].dm_method[i].method_id<<std::endl;
+    std::cout<< i <<" "<<dm_axis[i] << " "<< chan_results[0].sum_idxs[i][0] << " ";
+    std::cout<< chan_results[0].sum_idxs[i][1]<<" ";
+    std::cout<< chan_results[0].dm_method[i].method_id<<std::endl;
+  }
+
+  std::cout<< "Intervals" << std::endl;
+  for (i=0; i < chan_results[0].identical_sum_intervals.size();i++){
+    std::cout<< chan_results[0].identical_sum_intervals[i][0] << " ";
+    std::cout<< chan_results[0].identical_sum_intervals[i][1] << std::endl;
+  }
+
+  for (i=0 ; i < chan_results[0].dedsprs_idxs_dm.size(); i++ ){
+    std::cout<< chan_results[0].dedsprs_idxs_dm[i] << std::endl;
   }
 
   return 0;
