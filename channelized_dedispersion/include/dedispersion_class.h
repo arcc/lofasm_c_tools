@@ -81,6 +81,7 @@ class ChanData
     int num_time_bin;
     std::vector<double> data;
 
+    // Class method
     std::vector<double> get_time_axis();
     //int read_data();
 }; // Finish define the ChanData class
@@ -99,14 +100,17 @@ class DedsprsResult
     int num_dm_bin;
 
     std::vector< std::vector<double> > data;
-    std::vector< std::vector<double> > normArray;
+    std::vector<int> norm_array;
 
     // Constructor
-    DedsprsResult (double time_start, double time_step, int num_time_bin,
-                   double dm_start, double dm_step, int num_dm_bin);
+    DedsprsResult (double input_time_start, double input_time_step,
+                   int input_num_time_bin, double input_dm_start,
+                   double input_dm_step, int input_num_dm_bin);
     // Class methods
     int map_time_idx(double time);
     int map_dm_idx(double dm);
+    std::vector<double> get_time_axis();
+    std::vector<double> get_dm_axis();
 
 };
 

@@ -49,4 +49,7 @@ int no_sum(int start_sum_idx_last, int end_sum_idx_last,
            std::vector<double> & result_curr);
 
 
+std::vector<double> get_axis(double start, double step, int num_bins);
+
+
 #endif  // DEDISPERSION_UTILS_H_

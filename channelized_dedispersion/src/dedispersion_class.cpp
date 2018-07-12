@@ -62,15 +62,10 @@ void ChanDedsprs::get_sum_idxs(){
   // get sum indices for the current frequency channle.
   for (i = 0; i<dms.size() ; i++ ){
     time_delay_curr = get_time_delay(freq, ref_freq, dms[i]);
-    std::cout<<"ref freq "<< ref_freq<< " ";
-    std::cout<< "TIME DELAY"<<time_delay_curr<<" ";
     sum_idxs[i][0] = (int)(time_delay_curr/time_step);
-    std::cout<<" Index :" << sum_idxs[i][0]<<std::endl;
     // get the end sum index
     time_delay_low_freq = get_time_delay(freq - chan_bandwidth, ref_freq, dms[i]);
     sum_idxs[i][1] = (int)(time_delay_low_freq/time_step);
-    std::cout<< "TIME DELAY2 "<<time_delay_low_freq;
-    std::cout<<" Index 2 :" << sum_idxs[i][1]<<std::endl;;
   }
 }
 
@@ -207,8 +202,10 @@ void ChanDedsprs::get_dedispersion_idx(){
 }
 
 
-// Finish defining class method for ChanDedsprs
+// Finish defining class methods for ChanDedsprs class
 //////////////////////////////////////////////////
+
+// Start defining class methods for ChanData class
 std::vector<double> ChanData::get_time_axis(){
   int i;
   std::vector<double> time_axis(num_time_bin, 0.0);
@@ -216,4 +213,32 @@ std::vector<double> ChanData::get_time_axis(){
     time_axis[i] = start_time + i * time_step;
   }
   return time_axis;
+}
+
+
+// Finish defining class methods for ChanData class
+//////////////////////////////////////////////////
+
+// Start defining class methods for DedsprsResult class
+DedsprsResult::DedsprsResult(double input_time_start, double input_time_step,
+                             int input_num_time_bin, double input_dm_start,
+                             double input_dm_step, int input_num_dm_bin){
+  time_start = input_time_start;
+  time_step = input_time_step;
+  num_time_bin = input_num_time_bin;
+  dm_start = input_dm_start;
+  dm_step = input_dm_step;
+  num_dm_bin = input_num_dm_bin;
+  data.resize(num_dm_bin, std::vector<double> (num_time_bin, 0.0));
+  time_axis = get_time_axis();
+  dm_axis = get_dm_axis();
+  norm_array.resize(num_dm_bin, 0);
+}
+
+std::vector<double> DedsprsResult::get_time_axis(){
+  return get_axis(time_start, time_step, num_time_bin);
+}
+
+std::vector<double> DedsprsResult::get_dm_axis(){
+  return get_axis(dm_start, dm_step, num_dm_bin);
 }

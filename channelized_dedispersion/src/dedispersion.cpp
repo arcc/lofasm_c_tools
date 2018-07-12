@@ -70,25 +70,29 @@ int combine_chan_result(ChanDedsprs & chan_res, DedsprsResult & result)
 // time resolution.
 // The combine process uses the final result's time and DM as the reference.
 // In other words chan_res will be matched to result.
+// The chan_res needs to have enough data to cover the results.
 {
   int i, j;
+  int dm_idx;
   int start_cmb_time_idx;
   int start_cmb_dm_idx;
   double start_time_diff;
   double start_dm_diff;
-
+  int result_dm_idx;
   std::vector<double> chan_time_axis = chan_res.get_time_axis();
   std::vector<double> chan_dm_axis = chan_res.get_dm_axis();
 
   // Match the start time index.
   start_time_diff =  result.time_axis.front() - chan_time_axis.front();
+  // Check if time index in the chan result range
   if (start_time_diff < 0){
-    std::cerr << "Channelized dedispersion result does not have the requested ";
-    std::cerr << " requested time (0)." << std::endl;
+    std::cerr << "Channelized dedispersion result does not have the ";
+    std::cerr << "requested time (0)." << std::endl;
     std::exit(1);
   }
+  // Check if there are enough time data.
   start_cmb_time_idx = (int)(start_time_diff / result.time_step);
-  if (start_cmb_time_idx + result.num_time_bin > chan_time_axis.back()) {
+  if (start_cmb_time_idx + result.num_time_bin > chan_time_axis.size()) {
     std::cerr << "Channelized dedispersion result does not have enough data";
     std::cerr << " for requested time (1).";
     std::exit(1);
@@ -96,22 +100,25 @@ int combine_chan_result(ChanDedsprs & chan_res, DedsprsResult & result)
 
   // Match the DM index
   start_dm_diff = result.dm_axis.front() - chan_dm_axis.front();
+  // Check if DM index in the chan result range
   if (start_dm_diff < 0){
     std::cerr << "Channelized dedispersion result does not have the requested ";
     std::cerr << " requested DM (0)." << std::endl;
     std::exit(1);
   }
-
+  // Check if there are enough DM data.
   start_cmb_dm_idx = (int) (start_time_diff / result.time_step);
-  if (start_cmb_dm_idx + result.num_dm_bin > chan_dm_axis.back()) {
+  if (start_cmb_dm_idx + result.num_dm_bin > chan_dm_axis.size()) {
     std::cerr << "Channelized dedispersion result does not have enough data";
-    std::cerr << " for requested time (1).";
+    std::cerr << " for requested DM (1).";
     std::exit(1);
   }
 
   for ( i = 0; i < result.num_dm_bin; i++ ){
+    result_dm_idx = chan_res. dm_method[start_cmb_dm_idx + i].result_idx;
     for ( j = 0; j < result.num_time_bin; j++ ){
-      result.data[i][j] += chan_res.data[start_cmb_dm_idx][start_cmb_time_idx];
+      result.data[i][j] += chan_res.data[result_dm_idx][start_cmb_time_idx + j];
     }
   }
+  return 0;
 }

@@ -132,3 +132,13 @@ int no_sum(int start_sum_idx_last, int end_sum_idx_last,
 {
   return 0;
 }
+
+std::vector<double> get_axis(double start, double step, int num_bins)
+{
+  int i;
+  std::vector<double> axis(num_bins, 0.0);
+  for ( i = 0; i < axis.size(); i++ ){
+    axis[i] = start + i * step;
+  }
+  return axis;
+}
