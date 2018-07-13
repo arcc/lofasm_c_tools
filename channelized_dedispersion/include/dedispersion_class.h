@@ -7,7 +7,6 @@
 #include<math.h>
 #include<string>
 #include<vector>
-#include<boost/function.hpp>
 
 // A class that saves the information for different dedispersion method.
 // This class will be used by the ChanDedsprs class.
@@ -20,9 +19,8 @@ class DedsprsMethod
     int result_idx;          // The index where the result is saved in the results array
     int ref_result_idx;      // The reference index of result array
 
-    boost::function8 < int, int, int, int, int, int, std::vector<double>&, \
-                       std::vector<double>&, std::vector<double>& > method;
-
+    int (*method) (int, int, int, int, int, std::vector<double>&, \
+                       std::vector<double>&, std::vector<double>&);
     DedsprsMethod (int input_ref_dm_idx, int input_curr_dm_idx);
 };
 
