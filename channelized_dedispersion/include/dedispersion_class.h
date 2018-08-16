@@ -7,6 +7,7 @@
 #include<math.h>
 #include<string>
 #include<vector>
+#include "dedispersion_io.h"
 
 // A class that saves the information for different dedispersion method.
 // This class will be used by the ChanDedsprs class.
@@ -81,8 +82,32 @@ class ChanData
 
     // Class method
     std::vector<double> get_time_axis();
-    //int read_data();
+    int read_data(DataFile & dfile, int start_idx, int read_num_time_bin);
 }; // Finish define the ChanData class
+
+// Define the filtbank data class
+class FilterBank
+/*
+A class for filter bank data, which is a block of integrations
+Data will be stored in a 2D c++ vector, x axis time and
+y axis frequency.  The information of the data will also
+be stored in the class members.
+*/
+{
+  public:
+    double start_freq;
+    double freqStep;
+    int num_freq_bin;
+    double start_time;
+    double timeStep;
+    int num_time_bin;
+    std::vector< std::vector<double> > data;
+
+    std::vector<double> get_time_axis();
+    std::vector<double> get_freq_axis();
+    int read_data(DataFile & dfile, int start_idx, int read_num_time_bin);
+};
+/* Finish define FilterBank data class*/
 
 class DedsprsResult
 {

@@ -215,7 +215,6 @@ std::vector<double> ChanData::get_time_axis(){
   return time_axis;
 }
 
-
 // Finish defining class methods for ChanData class
 //////////////////////////////////////////////////
 
