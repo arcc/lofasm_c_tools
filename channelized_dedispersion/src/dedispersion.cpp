@@ -1,10 +1,8 @@
-// This cpp file defines the dedispersion high-level functions
+// This cpp file defines the dedispersion algorithms.
 
 #include<math.h>
-#include<string>
 #include<vector>
 #include<stdio.h>
-#include<iostream>
 #include "dedispersion_class.h"
 #include "dedispersion_utils.h"
 #include "dedispersion.h"
@@ -27,8 +25,19 @@ ChanDedsprs init_chan_sum (ChanData & channel_data, double ref_freq,
   chan_dedsprs_result.get_identical_sum_idx();
   chan_dedsprs_result.get_dedispersion_idx();
   chan_dedsprs_result.organize_dedispersion();
+  chan_dedsprs_result.channel_data = &channel_data;
 
   return chan_dedsprs_result;
+}
+
+int load_data (std::vector <ChanDedsprs> &target, DataFileContainer &data)
+// This function loads the data to each channelized data class from the files.
+{
+  int i, j;
+  for (i = 0; i < target->size(); i++){
+
+  }
+  return 0;
 }
 
 int chan_sum (int dedsprs_start_idx, int dedsprs_end_idx,

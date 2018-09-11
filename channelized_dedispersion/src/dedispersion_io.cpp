@@ -2,7 +2,7 @@
 #include<math.h>
 #include<string>
 #include<vector>
-#include<tuple>
+#include<map>
 #include<set>
 #include<stdio.h>
 #include<iostream>
@@ -39,24 +39,30 @@ DataFile::DataFile(std::string fnamecpp, const char *input_mode)
   }
 }
 
-void FileList::add_to_map(DataFile data_file){
+int DataFile::close_file()
+{
+  fclose(f_ptr);
+  f_ptr = NULL;
+  return 0;
+}
+
+void FileList::add_to_map(DataFile * data_file){
   double start_time;
-  std::cout << data_file.start_time;
-  start_time = data_file.start_time;
+  start_time = data_file->start_time;
   files[start_time] = data_file;
   num_files = files.size();
 }
 
 void FileList::get_files_by_time(double stime, double etime,
-                                 std::map<double, DataFile>::iterator &itlow,
-                                 std::map<double, DataFile>::iterator &itup){
+                                 std::map<double, DataFile*>::iterator &itlow,
+                                 std::map<double, DataFile*>::iterator &itup){
   int num_file;
   itlow=files.lower_bound (stime);  // itlow points to b
   itlow --;
   itup=files.upper_bound (etime);
   itup --;
-  std::cout<<" Selected start file : "<<itlow->second.filenamecpp <<"\n";
-  std::cout<<" Selected end file : "<< itup->second.filenamecpp <<"\n";
+  std::cout<<" Selected start file : "<<itlow->second->filenamecpp <<"\n";
+  std::cout<<" Selected end file : "<< itup->second->filenamecpp <<"\n";
 }
 
 void DataFileContainer::add_file(std::string filename){
@@ -64,6 +70,7 @@ void DataFileContainer::add_file(std::string filename){
   std::string f_obs;
   std::string f_frame;
   double max_freq;
+  double min_freq;
   double freq_bandwidth;
   std::map<double, FileList>::iterator search;
 
@@ -71,6 +78,24 @@ void DataFileContainer::add_file(std::string filename){
   f_frame = f_obj -> get_frame();
   max_freq = f_obj -> get_max_freq();
   freq_bandwidth = f_obj -> get_bandwidth();
+  min_freq = f_obj -> get_min_freq();
+
+
+  if (f_obj->start_time < time_begin || time_begin == 0){
+    time_begin = f_obj->start_time;
+  }
+
+  if (f_obj->end_time > time_end){
+    time_end = f_obj->end_time;
+  }
+
+  if (max_freq > max_freq_infile){
+    max_freq_infile = max_freq;
+  }
+
+  if (min_freq < min_freq_infile || min_freq_infile == 0){
+    min_freq_infile = min_freq;
+  }
 
   if (obs.empty()){
     obs = f_obs;
@@ -94,7 +119,7 @@ void DataFileContainer::add_file(std::string filename){
   // Here we assume the bandwidth for each frequency are the same.
   search = file_lists.find(max_freq);
   if (search != file_lists.end()) {
-    search -> second.add_to_map(*(f_obj));
+    search -> second.add_to_map(f_obj);
   }
   // Build list and add file to the file list.
   else {
@@ -102,8 +127,24 @@ void DataFileContainer::add_file(std::string filename){
     f1.max_freq = max_freq;
     f1.freq_band = freq_bandwidth;
     file_lists[max_freq] = f1;
-    file_lists[max_freq].add_to_map(*(f_obj));
+    file_lists[max_freq].add_to_map(f_obj);
   }
+  all_files.insert(filename);
+}
+
+
+FileList * DataFileContainer::get_file_list_by_freq(double freq)
+// Get the file lists by the frequency
+{
+  FileList * result = NULL;
+  std::map <double, FileList>::iterator it;
+  for (it = file_lists.begin(); it != file_lists.end(); ++it){
+    if (freq < it -> first && freq > it -> second.max_freq - it -> first)
+      result = &(it -> second);
+    else
+      continue;
+  }
+  return result;
 }
 
 int check_file_type(std::string filename){
@@ -158,7 +199,10 @@ DataFile * get_file_info(std::string filename){
     return file_obj;
   }
   file_obj->read_head();
+  // TODO: remove the assumption that dim1 is time axis.
   file_obj->start_time = file_obj->get_dim1_start();
+  file_obj->time_span = file_obj->get_dim1_span();
+  file_obj->end_time = file_obj->start_time + file_obj->time_span;
   file_obj->close_file();
   return file_obj;
 }

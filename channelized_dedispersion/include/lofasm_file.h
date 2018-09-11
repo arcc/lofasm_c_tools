@@ -15,23 +15,27 @@ class LfBbx: public DataFile
 {
   public:
     lfb_hdr head;
+    long head_size;
 
     // Public method
     LfBbx (const char *fname, const char *input_mode);
     double get_dim1_start();
     double get_dim1_step();
+    double get_dim1_span();
     double get_dim2_start();
     double get_dim2_step();
+    double get_dim2_span();
 
 
     int read_head();
     int open_file();
-    int close_file();
     std::string get_obs();
     std::string get_frame();
     double get_max_freq();
     double get_min_freq();
     double get_bandwidth();
+    double get_freq_res();
+    int allocate_spectrum();
     int read_next_subint_1d (int num_next_time_bin,
                              std::vector <double> & data)
                              { return 0; };
@@ -51,6 +55,8 @@ class LfBbx: public DataFile
     int read_data_cplx(int request_time_bin,
                         std::vector< std::vector<double> > & real_data,
                         std::vector< std::vector<double> > & cplx_data);
+
+    int read_next_spectrum();
 };
 
 

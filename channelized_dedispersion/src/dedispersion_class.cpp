@@ -26,7 +26,7 @@ std::vector<double> ChanDedsprs::get_time_axis(){
   int i;
   std::vector<double> time_axis(num_time_bin, 0.0);
   for(i = 0 ; i < time_axis.size(); i++){
-    time_axis[i] = start_time + i * time_step;
+    time_axis[i] = result_start_time + i * time_step;
   }
   return time_axis;
 }
@@ -200,6 +200,15 @@ void ChanDedsprs::get_dedispersion_idx(){
     dedsprs_idxs_dm.push_back(j);
   }
 }
+
+void ChanDedsprs::get_data_times(){
+  if (sum_idxs.size() == 0){
+    get_sum_idxs();
+  }
+  data_start_time = result_start_time + sum_idxs.front()[0];
+  data_end_time  = result_end_time + sum_idxs.back()[1];
+}
+
 
 
 // Finish defining class methods for ChanDedsprs class

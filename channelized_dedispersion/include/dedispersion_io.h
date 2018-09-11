@@ -20,6 +20,8 @@ class DataFile
 // This data file class do not store the data. It only provides the API to
 // write or read data.
 {
+  protected:
+    int specturm_allocate = 0;
   public:
     std::string filenamecpp;
     char filename[1024];   // file name
@@ -30,24 +32,30 @@ class DataFile
     int curr_dim2_index; // The dim2 position/index where the file pointer is at.
     double start_time; // Start time of the file
     double time_span;  // End time of the file
+    double end_time;
     DataFile * next_file;
+    double * spectrum;
     // Publich method
     DataFile (std::string fnamecpp, const char *input_mode);
     DataFile ();
+    int close_file();
     virtual int read_head() { return 0; };
     virtual int open_file() {return 0;};
-    virtual int close_file(){return 0;};
     virtual double get_dim1_start(){return 0;};
     virtual double get_dim1_step(){return 0;};
+    virtual double get_dim1_span(){return 0;};
     virtual double get_dim2_start(){return 0;};
     virtual double get_dim2_step(){return 0;};
+    virtual double get_dim2_span(){return 0;};
     virtual std::string get_obs(){return 0;};
     virtual std::string get_frame(){return 0;};
     virtual double get_max_freq(){return 0;};
     virtual double get_min_freq(){return 0;};
-    virtual double get_bandwidth(){return 0;}
+    virtual double get_bandwidth(){return 0;};
+    virtual double get_freq_res(){return 0;};
+    virtual int allocate_spectrum(){return 0;};
     // Functions for read and write data.
-    // a subint means several time bins
+    // a subint means several time bins.
     virtual int read_next_subint_1d (int num_next_time_bin,
                                      std::vector <double> & data)
                                      { return 0; };
@@ -61,6 +69,7 @@ class DataFile
     virtual int write_next_subint_2d (int num_next_time_bin,
                                   std::vector < std:: vector <double> > & data)
                                      { return 0; };
+    virtual int read_next_spectrum(){return 0;};
 };
 
 class FileList
@@ -69,14 +78,14 @@ class FileList
 // The files in the list will be sorted by time.
 {
   public:
-    std::map<double, DataFile> files;
+    std::map<double, DataFile*> files;
     int num_files;
     double max_freq;
     double freq_band;
-    void add_to_map(DataFile data_file);
+    void add_to_map(DataFile * data_file);
     void get_files_by_time(double stime, double etime,
-                           std::map<double, DataFile>::iterator &itlow,
-                           std::map<double, DataFile>::iterator &itup);
+                           std::map<double, DataFile*>::iterator &itlow,
+                           std::map<double, DataFile*>::iterator &itup);
 };
 
 
@@ -85,6 +94,10 @@ class DataFileContainer
 // This container only works for one station and one polarization.
 {
   public:
+    double time_begin = 0;       // earliest time and latest time for all files.
+    double time_end = 0;
+    double max_freq_infile = 0;
+    double min_freq_infile = 0;
     std::set <std::string> all_files;     // All the files in the directory
     std::set <std::string> processed_files;  // The files have been processed
     //std::set <string> waiting_files;    // waiting_files = all_files - processed - in queue
@@ -97,6 +110,7 @@ class DataFileContainer
     //std::set <string> check_new_files();
     void add_file(std::string filename);
     void remove_from_list(std::string filename);
+    FileList * get_file_list_by_freq(double freq);
 };
 
 

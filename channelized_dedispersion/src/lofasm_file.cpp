@@ -14,12 +14,6 @@ LfBbx::LfBbx(const char *fname, const char *input_mode) : DataFile(fname, input_
   open_file();
 }
 
-
-int LfBbx::close_file(){
-  fclose(f_ptr);
-  return 0;
-}
-
 int LfBbx::open_file(){
   f_ptr =  lfopen(filename, mode);
   return 0;
@@ -35,6 +29,7 @@ int LfBbx::read_head()
     std::cerr << "Reading file head for : " << f_str << " failed." << std::endl;
     exit(1);
   }
+  head_size = ftell(f_ptr);
   return 0;
 }
 
@@ -55,6 +50,10 @@ double LfBbx::get_dim1_start(){
   return head.time_offset_J2000 + head.dim1_start;
 }
 
+double LfBbx::get_dim1_span(){
+  return head.dim1_span;
+}
+
 double LfBbx::get_dim1_step(){
   return head.dim1_span / (double)(head.dims[0]);
 }
@@ -66,20 +65,69 @@ double LfBbx::get_dim2_step(){
   return head.dim2_span / (double)(head.dims[1]);
 }
 
+double LfBbx::get_dim2_span(){
+  return head.dim2_span;
+}
+
 double LfBbx::get_min_freq()
 {
-  return get_dim2_start();
+  if (!strncmp(head.dim2_label, "frequency", 9))
+    return get_dim2_start();
+  else{
+    std::cerr << "File : "<< filenamecpp << "'s dim2 is not frequency.'";
+    exit(1);
+  }
 }
 
 double LfBbx::get_max_freq()
 {
-  return get_dim2_start() + head.dim2_span;
+  if (!strncmp(head.dim2_label, "frequency", 9)){
+    return get_dim2_start() + head.dim2_span;
+  }
+  else{
+    std::cerr << "File : "<< filenamecpp << "'s dim2 is not frequency.'";
+    exit(1);
+  }
 }
 
 double LfBbx::get_bandwidth()
 {
-  return head.dim2_span;
+  if (!strncmp(head.dim2_label, "frequency", 9))
+    return head.dim2_span;
+  else{
+    std::cerr << "File : "<< filenamecpp << "'s dim2 is not frequency.'";
+    exit(1);
+  }
 }
+
+double LfBbx::get_freq_res()
+// Get the frequency resolution
+{
+  if (!strncmp(head.dim2_label, "frequency", 9))
+    return get_dim2_step();
+  else{
+    std::cerr << "File : "<< filenamecpp << "'s dim2 is not frequency.'";
+    exit(1);
+  }
+}
+
+int LfBbx::allocate_spectrum()
+// Allocate the spectrum memory
+{
+  if (specturm_allocate){
+    return 0;
+  }
+  else{
+    spectrum =(double *) malloc(head.dims[1]*sizeof(double));
+    if (!spectrum){
+      std::cerr<< "Unable to allocate the spectrum!"<<std::endl;
+      exit(1);
+    }
+    specturm_allocate = 1;
+  }
+  return 0;
+}
+
 
 int LfBbx::read_data_real(int request_time_bin,
                        std::vector< std::vector<double> > & data){
@@ -138,5 +186,29 @@ int LfBbx::read_next_subint_2d (int num_next_time_bin, int cplx_flag,
   }
   return 0;
 };
+
+int LfBbx::read_next_spectrum()
+// This is a function that reads the next spectrum for the current file position
+{
+  long size;
+  int status;
+
+  if (!specturm_allocate)
+    allocate_spectrum();
+  // Check if file pointer at the begining of the spectrum
+  if (!f_ptr){
+    status = open_file();
+    fseek(f_ptr, head_size, SEEK_SET);
+  }
+  size= ftell (f_ptr);
+  if ((size - head_size) % head.dims[1] != 0){
+    std::cerr << "Can not read the spectrum, the file pointer is not at the ";
+    std::cerr << "begining of the spectrum.\n";
+    exit(1);
+  }
+  fread(spectrum, sizeof(double), head.dims[1], f_ptr);
+  curr_time_index ++;
+  return 0;
+}
 
 //

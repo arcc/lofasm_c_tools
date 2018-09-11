@@ -51,4 +51,8 @@ int no_sum(int start_sum_idx_last, int end_sum_idx_last,
 
 std::vector<double> get_axis(double start, double step, int num_bins);
 
+double cal_dm_step_min(double freq_ref, double freq_min, double time_step);
+
+double MJD_2_J2000_second(double MJD);
+
 #endif  // DEDISPERSION_UTILS_H_

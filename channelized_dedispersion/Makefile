@@ -10,6 +10,8 @@ SOURCES= $(wildcard src/*.cpp)
 OBJECTS = $(addprefix lib/,$(notdir $(SOURCES:.cpp=.o)))
 TESTSRC = $(wildcard tests/*.cpp)
 TESTS= $(addprefix tests/,$(notdir $(TESTSRC:.cpp=)))
+PROGSRC = $(wildcard prog/*.cpp)
+PROG = $(addprefix prog/,$(notdir $(PROGSRC:.cpp=)))
 OBJDIR = lib
 LDLIBS = ../lofasmio/liblofasmio.a -lz
 IOLIB = ../lofasmio/liblofasmio.a
@@ -24,6 +26,9 @@ $(OBJECTS): $(SOURCES)
  $(PROJECT): $(OBJECTS)
 	libtool -o $(OBJDIR)/$(PROJECT) -static $(OBJECTS)
 
+prog:$(PROG)
+$(PROG): $(IOLIB) $(DEDSPSLIBS)
+
 tests:$(TESTS)
 $(TESTS): $(IOLIB) $(DEDSPSLIBS)
 # $(CXX) $(CPPFLAGS) $@.cpp $(LDLIBS) $(DEDSPSLIBS) -o $@
@@ -31,3 +36,4 @@ $(TESTS): $(IOLIB) $(DEDSPSLIBS)
 clean:
 	$(RM) $(OBJECTS) $(OBJDIR)/$(PROJECT)
 	$(RM) $(TESTS) *~
+	$(RM) $(PROG) *~

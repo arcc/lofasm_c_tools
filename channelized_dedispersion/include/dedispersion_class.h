@@ -25,6 +25,27 @@ class DedsprsMethod
     DedsprsMethod (int input_ref_dm_idx, int input_curr_dm_idx);
 };
 
+
+// This is a class for storing the channelized data. The data should be an 1D
+// vector array that reprsents the power for one frequency channel over time.
+class ChanData
+{
+  public:
+    double freq;
+    double chan_bandwidth;
+    double start_time;
+    double time_step;
+    int num_time_bin;
+    int max_time_bin;
+    std::vector<double> data;
+    FileList * data_files;
+
+    // Class method
+    std::vector<double> get_time_axis();
+    int read_data(DataFile & dfile, int start_idx, int read_num_time_bin);
+}; // Finish define the ChanData class
+
+
 // class for the channelized dedispersion result container.
 // It contains a 2D array. dimsion one is DM, and dimsion two is time.
 // It only saves the result of one frequency channel.
@@ -35,11 +56,14 @@ class ChanDedsprs
     int num_dm_bin;
     double freq;
     double chan_bandwidth;
-    double start_time;
+    double result_start_time;
     double time_step;
     double start_dm;
     double dm_step;
     double ref_freq;
+    double data_start_time; // Required data's start time
+    double data_end_time;   // Required data's end time
+
     // This is a vector that store the dm intervals that have the same sum index
     // EXAMPLE:
     // if dm index 0 to dm index 10 have the same sum index for this frequency,
@@ -53,7 +77,7 @@ class ChanDedsprs
     std::vector<int> dedspsr_result_map;  // The DM result indices
     std::vector< DedsprsMethod > dm_method; // DM method.
     std::vector<int> normalize_num; // The number of normalizing for each DM trail.
-
+    ChanData * channel_data;        // A pointer that points to the channelized data.
 
     // Constructor
     ChanDedsprs (double input_freq, double input_bandwidth);
@@ -66,24 +90,9 @@ class ChanDedsprs
     void get_dedispersion_idx();
     void organize_dedispersion();
     void get_result_map();
+    void get_data_times();
 }; // Finish define the ChanDedsprs class
 
-// This is a class for storing the channelized data. The data should be an 1D
-// vector array that reprsents the power for one frequency channel over time.
-class ChanData
-{
-  public:
-    double freq;
-    double chan_bandwidth;
-    double start_time;
-    double time_step;
-    int num_time_bin;
-    std::vector<double> data;
-
-    // Class method
-    std::vector<double> get_time_axis();
-    int read_data(DataFile & dfile, int start_idx, int read_num_time_bin);
-}; // Finish define the ChanData class
 
 // Define the filtbank data class
 class FilterBank

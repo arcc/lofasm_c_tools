@@ -8,6 +8,7 @@
 #include<vector>
 #include "dedispersion.h"
 #include "dedispersion_class.h"
+#define MJDJ2000 51545.0
 
 
 double get_time_delay(double freq, double freqRef, double dm)
@@ -18,6 +19,16 @@ double get_time_delay(double freq, double freqRef, double dm)
     double timeDelay;
     timeDelay = 4.15e15 * dm * (1.0/(freq*freq) - 1.0/(freqRef*freqRef));
     return timeDelay;
+}
+
+double cal_dm_step_min(double freq_ref, double freq_min, double time_step)
+// This function computes the minimum dm step form the required frequency
+// and the time step
+{
+  double dmstep;
+  dmstep = time_step/(-4.15e15*(1.0/(freq_ref*freq_ref)-1.0/(freq_min*freq_min)));
+  return dmstep;
+
 }
 
 
@@ -141,4 +152,9 @@ std::vector<double> get_axis(double start, double step, int num_bins)
     axis[i] = start + i * step;
   }
   return axis;
+}
+
+double MJD_2_J2000_second(double MJD)
+{
+  return (MJD - MJDJ2000)/86400.0;
 }
